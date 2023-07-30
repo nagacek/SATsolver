@@ -16,22 +16,31 @@ namespace logger {
     bool use_file = false;
 
     enum type {
+        FINISHED,
+        ERROR,
+        INFO,
+        WARNING,
         DEBUG,
         ENHANCE,
-        INFO,
-        WARN,
-        ERROR
+        DEBUG_VERBOSE
     };
+    type LOG_LEVEL = type::ENHANCE;
+
     std::string message_types[] =
             {
-            "DEBUG",
-            "ENHANCE",
-            "INFO",
-            "WARNING",
-            "ERROR"
+                    "FINISHED",
+                    "ERROR",
+                    "INFO",
+                    "WARNING",
+                    "DEBUG",
+                    "ENHANCE",
+                    "DEBUG_VERBOSE"
             };
 
-    void log(type type_num, const std::string& msg) {
+    void log(type type_num, const std::string &msg) {
+        if (type_num > LOG_LEVEL) {
+            return;
+        }
         if (use_file) {
             std::ofstream outfile;
             outfile.open(file, std::ios_base::app);
@@ -39,6 +48,13 @@ namespace logger {
         } else {
             printf("[%s]: %s", message_types[type_num].c_str(), msg.c_str());
         }
+    }
+
+    void log_stdout(type type_num, const std::string &msg) {
+        if (type_num > LOG_LEVEL) {
+            return;
+        }
+        printf("[%s]: %s", message_types[type_num].c_str(), msg.c_str());
     }
 };
 
