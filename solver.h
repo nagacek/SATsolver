@@ -14,6 +14,7 @@ class solver {
     cnf cnf_val;
     assignment assgn;
     watch_list twoatch;
+    vector<float> priority;
 public:
     solver() {
         assgn = assignment();
@@ -25,6 +26,9 @@ public:
     }
     cnf* get_formula() {
         return &cnf_val;
+    }
+    watch_list* get_watch_list() {
+        return &twoatch;
     }
     sat_bool solve();
 
