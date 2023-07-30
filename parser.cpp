@@ -92,7 +92,7 @@ namespace parser {
         assignment *assgn = s.get_assignment();
         cnf *cnf_val = s.get_formula();
 
-        parse_first(skip_comments(source), assgn, cnf_val);
+        parse_first(skip_comments(source), assgn, cnf_val, s.get_watch_list());
         parse_clauses(source, cnf_val);
     }
 }
