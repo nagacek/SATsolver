@@ -7,6 +7,7 @@
 #include <sstream>
 #include "parser.h"
 #include "exceptions/sat_exception.h"
+#include "logger.h"
 
 namespace parser {
     std::istream &next_word(std::istream &stream, std::string &to_store) {
@@ -78,12 +79,13 @@ namespace parser {
         cnf_val->set_clause_num(wtoi(word));
     }
 
-    void parse(int argc, char **argv, solver &s) {
+    std::string parse(int argc, char **argv, solver &s) {
         if (argc < 1) {
             throw invalid_arg_exception(std::string("argument list is too small"));
         }
         std::ifstream source;
-        source.open(std::string(argv[1]));
+        std::string cnf_file = std::string(argv[1]);
+        source.open(cnf_file);
         if (!source.is_open()) {
             throw invalid_file_exception();
         }
@@ -94,5 +96,28 @@ namespace parser {
 
         parse_first(skip_comments(source), assgn, cnf_val, s.get_watch_list());
         parse_clauses(source, cnf_val);
+        return cnf_file;
+    }
+
+    void unparse(assignment *assgn, const string& cnf_file) {
+        std::string cnf_sol_file = cnf_file + ".sol";
+        std::string dimacs_sol = "p cnf " + std::to_string(assgn->get_var_num()) + " " + std::to_string(assgn->get_var_num());
+
+        for (int i = 1; i <= assgn->get_var_num(); i++) {
+            dimacs_sol += "\n";
+            sat_bool curr_assgn = assgn->get_assignment(i);
+            if (curr_assgn == sat_bool::True) {
+                dimacs_sol += to_string(i);
+            } else if (curr_assgn == sat_bool::False) {
+                dimacs_sol += "-" + to_string(i);
+            } else {
+                logger::log(logger::type::ERROR, "Variable [" + to_string(i) + "] was not assigned when finished.");
+                exit(-1);
+            }
+        }
+
+        std::ofstream outfile;
+        outfile.open(cnf_sol_file);
+        outfile << dimacs_sol;
     }
 }

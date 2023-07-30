@@ -23,6 +23,10 @@ public:
         return &list.at(lit.get_id());
     }
 
+    void undo(lit lit) {
+        list[lit.get_id()] = vector<clause*>();
+    }
+
     vector<clause*> assume(lit lit) {
         auto watchers = list.at(lit.get_nid());
         

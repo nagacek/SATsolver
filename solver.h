@@ -14,12 +14,21 @@ class solver {
     cnf cnf_val;
     assignment assgn;
     watch_list twoatch;
+
     vector<float> priority;
+    float variable_enhance;
+    float variable_diminish;
+
+
 public:
-    solver() {
+    solver(float var_en, float var_dim) {
         assgn = assignment();
         cnf_val = cnf();
         twoatch = watch_list();
+
+        priority = vector<float>();
+        variable_enhance = var_en;
+        variable_diminish = var_dim;
     }
     assignment* get_assignment() {
         return &assgn;
@@ -33,7 +42,12 @@ public:
     sat_bool solve();
 
 private:
-    void propagate(lit p);
+
+    void init_prio();
+
+    lit decide();
+
+    bool allAssigned();
 };
 
 
