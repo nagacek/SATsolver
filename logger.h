@@ -8,12 +8,10 @@
 #include <string>
 #include <fstream>
 #include <cstdio>
-#include <chrono>
-
 
 namespace logger {
-    std::string file = "stdout";
-    bool use_file = false;
+    const std::string file = "stdout";
+    const bool use_file = false;
 
     enum type {
         FINISHED,
@@ -24,9 +22,9 @@ namespace logger {
         ENHANCE,
         DEBUG_VERBOSE
     };
-    type LOG_LEVEL = type::ENHANCE;
+    const type LOG_LEVEL = type::DEBUG_VERBOSE;
 
-    std::string message_types[] =
+    const std::string message_types[] =
             {
                     "FINISHED",
                     "ERROR",
@@ -37,25 +35,10 @@ namespace logger {
                     "DEBUG_VERBOSE"
             };
 
-    void log(type type_num, const std::string &msg) {
-        if (type_num > LOG_LEVEL) {
-            return;
-        }
-        if (use_file) {
-            std::ofstream outfile;
-            outfile.open(file, std::ios_base::app);
-            outfile << "[" + message_types[type_num] + "]: " + msg;
-        } else {
-            printf("[%s]: %s", message_types[type_num].c_str(), msg.c_str());
-        }
-    }
 
-    void log_stdout(type type_num, const std::string &msg) {
-        if (type_num > LOG_LEVEL) {
-            return;
-        }
-        printf("[%s]: %s", message_types[type_num].c_str(), msg.c_str());
-    }
+    void log(type type_num, const std::string &msg);
+
+    void log_stdout(type type_num, const std::string &msg);
 };
 
 
