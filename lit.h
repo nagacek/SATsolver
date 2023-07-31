@@ -15,13 +15,13 @@ private:
     unsigned nid;
 public:
     lit(unsigned var, bool neg) {
-        if (var == 0) {
-            throw invalid_arg_exception(std::string("lit variable cannot have index 0"));
+        if (var == 0 && neg) {
+            throw invalid_arg_exception(std::string("lit variable cannot have index 0 and be negative"));
         }
         this->var = var;
         is_negative = neg;
         id = 2 * var - (is_negative ? 1 : 0);
-        nid = 2 * var - (is_negative ? 0 : 1);
+        nid = id == 0 ? 0 : 2 * var - (is_negative ? 0 : 1);
 
     }
 
@@ -31,11 +31,12 @@ public:
         }
         this->var = abs(var);
         is_negative = var < 0;
+        id = 2 * var - (is_negative ? 1 : 0);
+        nid = id == 0 ? 0 : 2 * var - (is_negative ? 0 : 1);
     }
     unsigned get_id() { return id; }
     unsigned get_nid() { return nid; }
     unsigned get_var() { return var; }
-    void neg() { is_negative = !is_negative; }
     bool is_neg() { return is_negative; }
     lit copy() { return {var, is_negative}; }
     lit neg_copy() { return {var, !is_negative}; }

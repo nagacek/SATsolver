@@ -22,6 +22,7 @@ private:
     std::vector<int> level_sep;
     std::vector<int> assgn_levels;
     std::queue<lit> propagation;
+    std::vector<clause*> reasons;
     int var_num;
 public:
     assignment() {
@@ -29,69 +30,23 @@ public:
         var_num = 0;
     }
 
-    void init(int var) {
-        assgn[var] = sat_bool::Undef;
-    }
+    void init(int var);
 
-    bool assign_and_enqueue(lit mk_true) {
-        int var = (int) mk_true.get_var();
-        if (assgn[var] != sat_bool::Undef) {
-            if (apply(mk_true) == sat_bool::False) {
-                logger::log(logger::type::DEBUG_VERBOSE, "Variable [" + to_string(var) + "] has produced a conflict.");
-                return false;
-            }
-            return true;
-        } else {
-            assgn[var] = mk_true.is_neg() ? sat_bool::False : sat_bool::True;
-            chrono_assgn.emplace_back(mk_true);
-            assgn_levels[var] = (int) level_sep.size();
-            propagation.emplace(mk_true);
-            return true;
-        }
-    }
+    bool assign_and_enqueue(lit mk_true, clause* reason = nullptr);
 
-    clause* propagate(watch_list* twoatch) {
-        while(!propagation.empty()) {
-            lit to_propagate = propagation.front();
-            propagation.pop();
+    clause *propagate(watch_list *twoatch);
 
-            vector<clause*> list = std::move(*twoatch->get_clauses(to_propagate)); //??
-            twoatch->undo(to_propagate);
-            for (int i = 0; i < list.size(); i++) {
+    sat_bool apply(lit lit);
 
-            }
-        }
-        return nullptr;
-    }
+    void undo(int var);
 
-    sat_bool apply(lit lit) {
-        return lit.is_neg() ? !assgn.at(lit.get_var()) : assgn.at(lit.get_var());
-    }
+    void new_decision_level();
 
-    void undo(int var) {
-        assgn[var] = sat_bool::Undef;
-        assgn_levels[var] = -1;
-    }
+    sat_bool get_assignment(int var);
 
-    void new_decision_level() {
-        level_sep.emplace_back(chrono_assgn.size());
-    }
+    void set_var_num(int num);
 
-    sat_bool get_assignment(int var) {
-        return assgn.at(var);
-    }
-
-    void set_var_num(int num) {
-        if (num <= 0)
-            throw invalid_arg_exception(std::string("negative amount of variables"));
-        var_num = num;
-        assgn.resize(num + 1);
-        assgn_levels.resize(num + 1);
-        std::fill(assgn_levels.begin(), assgn_levels.end(), -1);
-    }
-
-    int get_var_num() { return var_num; }
-
+    int get_var_num();
 };
 
 

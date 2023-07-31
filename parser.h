@@ -3,6 +3,7 @@
 //
 
 #include "solver.h"
+#include "logger.h"
 
 #ifndef SATSOLVER_PARSER_H
 #define SATSOLVER_PARSER_H

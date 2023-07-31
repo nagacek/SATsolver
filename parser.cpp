@@ -7,7 +7,6 @@
 #include <sstream>
 #include "parser.h"
 #include "exceptions/sat_exception.h"
-#include "logger.h"
 
 namespace parser {
     std::istream &next_word(std::istream &stream, std::string &to_store) {
@@ -111,7 +110,7 @@ namespace parser {
             } else if (curr_assgn == sat_bool::False) {
                 dimacs_sol += "-" + to_string(i);
             } else {
-                logger::log(logger::type::ERROR, "Variable [" + to_string(i) + "] was not assigned when finished.");
+                log(logger::type::ERROR, "Variable [" + to_string(i) + "] was not assigned when finished.");
                 exit(-1);
             }
         }

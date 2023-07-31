@@ -3,7 +3,6 @@
 //
 
 #include "solver.h"
-#include "logger.h"
 
 sat_bool solver::solve() {
     init_prio();
@@ -15,7 +14,10 @@ sat_bool solver::solve() {
             assgn.new_decision_level();
             assgn.assign_and_enqueue(decided);
 
-            assgn.propagate(twoatch);
+            clause* conflict = assgn.propagate(&twoatch);
+            if (conflict != nullptr) {
+                calc_reason();
+            }
         }
     }
 }
@@ -35,7 +37,7 @@ lit solver::decide() {
         }
     }
     if (decided == 0) {
-        logger::log(logger::type::ERROR,
+        log(logger::type::ERROR,
                     "Decision procedure found no variable with highest priority even though there is no satisfying assignment.");
         exit(-1);
     }

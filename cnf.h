@@ -16,6 +16,7 @@ private:
 public:
     cnf() {
         clauses = std::vector<clause>();
+        clause_num = -1;
     }
     clause* add_clause() {
         auto new_clause = clauses.insert(clauses.end(), clause());
