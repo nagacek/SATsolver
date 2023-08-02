@@ -7,4 +7,6 @@ add_executable(SATsolver parser.cpp parser.h main.cpp exceptions/sat_exception.h
         logger.h
         logger.cpp
         assignment.cpp
-        clause.cpp)
+        clause.cpp
+        priority.cpp
+        priority.h)

@@ -3,7 +3,7 @@
 #include "solver.h"
 
 int main(int argc,  char **argv) {
-    solver solver(1.0f, 0.95f);
+    solver solver(1.0, 1.05);
 
     std::string cnf_file = parser::parse(argc, argv, solver);
 

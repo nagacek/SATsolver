@@ -44,9 +44,29 @@ sat_bool assignment::apply(lit lit) {
     return lit.is_neg() ? !assgn.at(lit.get_var()) : assgn.at(lit.get_var());
 }
 
-void assignment::undo(int var) {
+void assignment::undo_last() {
+    lit lit = chrono_assgn.back();
+    chrono_assgn.pop_back();
+    int var = lit.get_var();
     assgn[var] = sat_bool::Undef;
     assgn_levels[var] = -1;
+    reasons[var] = nullptr;
+}
+
+void assignment::undo_until(int level) {
+    int i = level_sep.size();
+    int until = level_sep[level];
+    for (; i < until; i--) {
+        undo_last();
+    }
+}
+
+int assignment::get_level(lit lit) {
+    return assgn_levels[lit.get_var()];
+}
+
+int assignment::get_level() {
+    return (int)level_sep.size();
 }
 
 void assignment::new_decision_level() {
@@ -70,3 +90,11 @@ void assignment::set_var_num(int num) {
 }
 
 int assignment::get_var_num() { return var_num; }
+
+lit assignment::get_last_assign() {
+    return chrono_assgn.back();
+}
+
+clause* assignment::get_reason(lit lit) {
+    return reasons[lit.get_var()];
+}

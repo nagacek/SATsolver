@@ -12,22 +12,22 @@
 class cnf {
 private:
     std::vector<clause> clauses;
+    std::vector<clause> learnt_clauses;
     int clause_num;
 public:
     cnf() {
         clauses = std::vector<clause>();
+        learnt_clauses = std::vector<clause>();
         clause_num = -1;
     }
-    clause* add_clause() {
-        auto new_clause = clauses.insert(clauses.end(), clause());
-        return new_clause.base();
-    }
 
-    void set_clause_num(int num) {
-        if (num <= 0)
-            throw invalid_arg_exception(std::string("negative number of clauses"));
-        clause_num = num;
-    }
+    clause* add_clause();
+
+    clause* add_learnt_clause();
+
+    void set_clause_num(int num);
+
+    void reverse_last_learnt();
 
 };
 

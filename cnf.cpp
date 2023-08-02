@@ -3,3 +3,24 @@
 //
 
 #include "cnf.h"
+
+clause* cnf::add_clause() {
+    auto new_clause = clauses.insert(clauses.end(), clause());
+    return new_clause.base();
+}
+
+clause* cnf::add_learnt_clause() {
+    auto new_clause = learnt_clauses.insert(learnt_clauses.end(), clause());
+    return new_clause.base();
+}
+
+void cnf::set_clause_num(int num) {
+    if (num <= 0)
+        throw invalid_arg_exception(std::string("negative number of clauses"));
+    clause_num = num;
+    clauses.resize(clause_num);
+}
+
+void cnf::reverse_last_learnt() {
+    learnt_clauses.pop_back();
+}
