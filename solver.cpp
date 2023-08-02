@@ -5,43 +5,28 @@
 #include "solver.h"
 
 sat_bool solver::solve() {
-    init_prio();
+    prio.init(assgn.get_var_num());
     while (true) {
         if (allAssigned()) {
             return sat_bool::True;
         } else {
-            lit decided = decide();
+            lit decided = prio.decide(&assgn);
             assgn.new_decision_level();
             assgn.assign_and_enqueue(decided);
 
             clause* conflict = assgn.propagate(&twoatch);
             if (conflict != nullptr) {
-                calc_reason();
+                clause* learnt_clause = cnf_val.add_learnt_clause();
+                lit asserting = {0, false};
+                int backtrack_level = calc_reason(conflict, learnt_clause, &asserting);
+                assgn.undo_until(backtrack_level);
+                if (!learnt_clause->init_learnt(asserting, &assgn, &prio)) {
+                    cnf_val.reverse_last_learnt();
+                }
+                prio.update();
             }
         }
     }
-}
-
-void solver::init_prio() {
-    priority.resize(assgn.get_var_num() + 1);
-}
-
-lit solver::decide() {
-    unsigned decided = 0;
-    float decided_val = -1;
-    for (int i = 1; i <= assgn.get_var_num(); i++) {
-        float current_val = priority[i];
-        if (current_val > decided_val && assgn.get_assignment(i) == sat_bool::Undef) {
-            decided = i;
-            decided_val = current_val;
-        }
-    }
-    if (decided == 0) {
-        log(logger::type::ERROR,
-                    "Decision procedure found no variable with highest priority even though there is no satisfying assignment.");
-        exit(-1);
-    }
-    return {decided, false};
 }
 
 bool solver::allAssigned() {
@@ -52,3 +37,46 @@ bool solver::allAssigned() {
     }
     return true;
 }
+
+int solver::calc_reason(clause *conflict, clause *learnt, lit* asserting) {
+    lit expansion = {0, false};
+    int counter = 0;
+    int max_level = 0;
+
+    vector<bool> lits_seen = vector<bool>(assgn.get_var_num() + 1);
+    std::fill(lits_seen.begin(), lits_seen.end(), false);
+
+    vector<lit> inter_reason = vector<lit>();
+
+    do {
+        inter_reason.clear();
+        conflict->calc_reason(expansion, &inter_reason);
+
+        for (int i = 0; i < inter_reason.size(); i++) {
+            lit new_expansion = inter_reason[i];
+            int var = (int)new_expansion.get_var();
+            if (!lits_seen[var]) {
+                lits_seen[var] = true;
+                int exp_level = assgn.get_level(new_expansion);
+                if (exp_level == assgn.get_level()) {
+                    counter++;
+                } else if (exp_level > 0) {
+                    learnt->add_lit(new_expansion.neg_copy());
+                    max_level = max(max_level, exp_level);
+                }
+            }
+        }
+
+        do {
+            expansion = assgn.get_last_assign();
+            conflict = assgn.get_reason(expansion);
+            assgn.undo_last();
+        } while(!lits_seen[expansion.get_var()]);
+        counter--;
+    } while (counter > 0);
+
+    *asserting = expansion.neg_copy();
+
+    return max_level;
+}
+

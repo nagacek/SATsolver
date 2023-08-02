@@ -22,3 +22,7 @@ void logger::log_stdout(type type_num, const std::string &msg) {
     }
     printf("[%s]: %s", message_types[type_num].c_str(), msg.c_str());
 }
+
+bool logger::cond_log(logger::type type_num) {
+    return logger::LOG_LEVEL >= type_num;
+}

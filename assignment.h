@@ -12,6 +12,7 @@
 #include "logger.h"
 #include "clause.h"
 #include "watch_list.h"
+#include "priority.h"
 #include <vector>
 #include <queue>
 
@@ -38,15 +39,25 @@ public:
 
     sat_bool apply(lit lit);
 
-    void undo(int var);
+    void undo_last();
+
+    void undo_until(int level);
 
     void new_decision_level();
+
+    int get_level(lit lit);
+
+    int get_level();
 
     sat_bool get_assignment(int var);
 
     void set_var_num(int num);
 
     int get_var_num();
+
+    lit get_last_assign();
+
+    clause* get_reason(lit lit);
 };
 
 

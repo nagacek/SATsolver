@@ -39,6 +39,8 @@ namespace logger {
     void log(type type_num, const std::string &msg);
 
     void log_stdout(type type_num, const std::string &msg);
+
+    bool cond_log(type type_num);
 };
 
 

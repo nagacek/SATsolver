@@ -43,9 +43,50 @@ bool clause::swap_watch1(watch_list *twoatch, assignment *assgn) {
             return true;
         }
     }
-    if (logger::LOG_LEVEL == logger::type::DEBUG_VERBOSE && (assgn->apply(lits[watch1]) != sat_bool::False)) {
+    if (logger::cond_log(logger::type::DEBUG_VERBOSE) && (assgn->apply(lits[watch1]) != sat_bool::False)) {
         logger::log(logger::type::DEBUG_VERBOSE,
                     "Somehow this variable is false and not false at the same time during propagation :(");
     }
     return false;
+}
+
+bool clause::init_learnt(lit watch, assignment *assgn, priority *prio) {
+    if (lits.empty()) {
+        return false;
+    }
+
+    if (lits.size() == 1) {
+        assgn->assign_and_enqueue(watch, this);
+        return false;
+    }
+    lits.emplace_back(watch);
+    learnt = true;
+    int var = -1;
+    int max_level = -1;
+    for (int i = 0; i < lits.size(); i++) {
+        int inter_level = assgn->get_level(lits[i]);
+        if (lits[i] == watch) {
+            watch1 = i;
+        } else if (inter_level > max_level) {
+            max_level = inter_level;
+            var = i;
+        }
+        prio->enhance(lits[i].get_var());
+    }
+    watch2 = var;
+    return true;
+}
+
+void clause::calc_reason(lit of, vector<lit> *reason) {
+    if (logger::cond_log(logger::type::ERROR) && !(of == lits[watch1]) || of.get_var() == 0) {
+        logger::log(logger::type::ERROR,
+                    std::string("Given literal ").append((of.is_neg() ? "¬" : "")).append("[").append(
+                            to_string(of.get_var())).append("] is not conflicting"));
+    }
+    for (int i = 0; i < lits.size(); i++) {
+        if (i == watch1 && of == lits[watch1]) {
+            continue;
+        }
+        reason->emplace_back(lits[i].neg_copy());
+    }
 }
