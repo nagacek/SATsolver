@@ -98,3 +98,7 @@ lit assignment::get_last_assign() {
 clause* assignment::get_reason(lit lit) {
     return reasons[lit.get_var()];
 }
+
+int assignment::get_lit_num() {
+    return var_num * 2 + 1;
+}

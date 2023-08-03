@@ -55,6 +55,8 @@ public:
 
     int get_var_num();
 
+    int get_lit_num();
+
     lit get_last_assign();
 
     clause* get_reason(lit lit);
