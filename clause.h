@@ -28,14 +28,17 @@ public:
 
     bool propagate(lit lit, watch_list* twoatch, assignment* assgn);
 
-    bool swap_watch1(watch_list *twoatch, assignment *assgn);
+    bool swap_watch2(watch_list *twoatch, assignment *assgn);
 
-    void init_watch();
+    void init_watch(watch_list *twoatch);
 
-    bool init_learnt(lit watch, assignment* assgn, priority *prio);
+    sat_bool init_learnt(lit watch, assignment* assgn, priority *prio);
 
     void calc_reason(lit of, vector<lit> *reason);
 
+    sat_bool init(assignment *assgn);
+
+    int occurrences(int var);
 };
 #include "assignment.h"
 #include "priority.h"

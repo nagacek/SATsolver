@@ -9,13 +9,13 @@
 
 class lit {
 private:
-    unsigned var;
+    int var;
     bool is_negative;
-    unsigned id;
-    unsigned nid;
+    int id;
+    int nid;
 public:
-    lit(unsigned var, bool neg) {
-        if (var == 0 && neg) {
+    lit(int var, bool neg) {
+        if (var == 0 && neg || var < 0) {
             throw invalid_arg_exception(std::string("lit variable cannot have index 0 and be negative"));
         }
         this->var = var;
@@ -25,12 +25,12 @@ public:
 
     }
 
-    explicit lit(int var) {
-        if (var == 0) {
+    explicit lit(int variable) {
+        if (variable == 0) {
             throw invalid_arg_exception(std::string("lit variable cannot have index 0"));
         }
-        this->var = abs(var);
-        is_negative = var < 0;
+        this->var = abs(variable);
+        is_negative = variable < 0;
         id = 2 * var - (is_negative ? 1 : 0);
         nid = id == 0 ? 0 : 2 * var - (is_negative ? 0 : 1);
     }

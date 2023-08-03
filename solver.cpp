@@ -5,12 +5,16 @@
 #include "solver.h"
 
 sat_bool solver::solve() {
+    cnf_val.init_watches(&twoatch);
     prio.init(assgn.get_var_num());
+    if (state == sat_bool::False) {
+        return sat_bool::False;
+    }
     while (true) {
         if (allAssigned()) {
             return sat_bool::True;
         } else {
-            lit decided = prio.decide(&assgn);
+            lit decided = prio.decide(&assgn, &cnf_val);
             assgn.new_decision_level();
             assgn.assign_and_enqueue(decided);
 
@@ -20,7 +24,11 @@ sat_bool solver::solve() {
                 lit asserting = {0, false};
                 int backtrack_level = calc_reason(conflict, learnt_clause, &asserting);
                 assgn.undo_until(backtrack_level);
-                if (!learnt_clause->init_learnt(asserting, &assgn, &prio)) {
+                sat_bool value = learnt_clause->init_learnt(asserting, &assgn, &prio);
+                if (value != sat_bool::Undef) {
+                    if (value == sat_bool::False) {
+                        return sat_bool::False;
+                    }
                     cnf_val.reverse_last_learnt();
                 }
                 prio.update();
@@ -78,5 +86,9 @@ int solver::calc_reason(clause *conflict, clause *learnt, lit* asserting) {
     *asserting = expansion.neg_copy();
 
     return max_level;
+}
+
+void solver::set_state(sat_bool st) {
+    state = st;
 }
 

@@ -22,7 +22,7 @@ namespace parser {
         return var_num;
     }
 
-    void parse_clauses(ifstream &stream, cnf *cnf_val) {
+    sat_bool parse_clauses(ifstream &stream, cnf *cnf_val, assignment *assgn) {
         std::string line;
         std::string word;
         bool new_clause = true;
@@ -37,12 +37,20 @@ namespace parser {
                 int value = wtoi(word);
                 if (value == 0) {
                     new_clause = true;
+                    sat_bool sat_value = clause_ptr->init(assgn);
+                    if (sat_value != sat_bool::Undef) {
+                        if (sat_value == sat_bool::False) {
+                            return sat_bool::False;
+                        }
+                        cnf_val->reverse_last();
+                    }
                     continue;
                 }
                 lit new_lit = lit(value);
                 clause_ptr->add_lit(new_lit);
             }
         }
+        return sat_bool::Undef;
     }
 
     std::string skip_comments(std::ifstream &source) {
@@ -94,7 +102,10 @@ namespace parser {
         cnf *cnf_val = s.get_formula();
 
         parse_first(skip_comments(source), assgn, cnf_val, s.get_watch_list());
-        parse_clauses(source, cnf_val);
+
+        if (parse_clauses(source, cnf_val, assgn) == sat_bool::False) {
+            s.set_state(sat_bool::False);
+        }
         return cnf_file;
     }
 

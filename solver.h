@@ -16,14 +16,16 @@ class solver {
     assignment assgn;
     watch_list twoatch;
     priority prio;
+    sat_bool state;
 
 
 public:
-    solver(float var_en, float var_dim) {
+    solver(double var_en, double var_dim) {
         assgn = assignment();
         cnf_val = cnf();
         twoatch = watch_list();
         prio = priority(var_en, var_dim);
+        state = sat_bool::Undef;
     }
     assignment* get_assignment() {
         return &assgn;
@@ -35,6 +37,7 @@ public:
         return &twoatch;
     }
     sat_bool solve();
+    void set_state(sat_bool st);
 
 private:
 

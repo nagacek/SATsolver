@@ -29,6 +29,11 @@ public:
 
     void reverse_last_learnt();
 
+    void reverse_last();
+
+    int occurrences(int var);
+
+    void init_watches(watch_list *twoatch);
 };
 
 

@@ -10,6 +10,7 @@
 #include "lit.h"
 
 class assignment;
+class cnf;
 class priority {
 
 private:
@@ -31,7 +32,7 @@ public:
 
     void init(int var_num);
 
-    lit decide(assignment* assgn);
+    lit decide(assignment *assgn, cnf *cnf);
 
     void enhance(int var);
 
@@ -39,5 +40,6 @@ public:
 };
 
 #include "assignment.h"
+#include "cnf.h"
 
 #endif //SATSOLVER_PRIORITY_H

@@ -24,10 +24,9 @@ public:
 
     clause *propagate(lit lit, assignment* assgn);
 
-    bool nadd_clause(lit lit, clause *clause);
+    bool add_clause(lit lit, clause * const &clause);
 
-    bool add_clause(lit lit, clause *clause);
-
+    bool nadd_clause(lit lit, clause * const &clause);
 };
 
 
