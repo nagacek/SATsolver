@@ -10,8 +10,7 @@ clause* cnf::add_clause() {
 }
 
 clause* cnf::add_learnt_clause() {
-    auto new_clause = learnt_clauses.insert(learnt_clauses.end(), clause());
-    return new_clause.base();
+    return &learnt_clauses.emplace_back();
 }
 
 void cnf::set_clause_num(int num) {

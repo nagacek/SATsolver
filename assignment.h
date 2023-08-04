@@ -33,7 +33,7 @@ public:
 
     void init(int var);
 
-    bool assign_and_enqueue(lit mk_true, clause* reason = nullptr);
+    bool assign_and_enqueue(lit mk_true, clause * const & reason = nullptr);
 
     clause *propagate(watch_list *twoatch);
 

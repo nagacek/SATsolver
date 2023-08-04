@@ -4,20 +4,20 @@
 #include "clause.h"
 #include "exceptions/sat_exception.h"
 #include <vector>
+#include<deque>
 
 #ifndef SATSOLVER_CNF_H
 #define SATSOLVER_CNF_H
 
-
 class cnf {
 private:
     std::vector<clause> clauses;
-    std::vector<clause> learnt_clauses;
+    std::deque<clause> learnt_clauses;
     int clause_num;
 public:
     cnf() {
         clauses = std::vector<clause>();
-        learnt_clauses = std::vector<clause>();
+        learnt_clauses = std::deque<clause>();
         clause_num = -1;
     }
 

@@ -25,7 +25,7 @@ bool clause::propagate(lit lit, watch_list *twoatch, assignment *assgn) {
     }
 
     twoatch->add_clause(lit, this);
-    return assgn->assign_and_enqueue(lits[watch1]);
+    return assgn->assign_and_enqueue(lits[watch1], this);
 }
 
 bool clause::swap_watch2(watch_list *twoatch, assignment *assgn) {
@@ -79,7 +79,7 @@ sat_bool clause::init(assignment *assgn) {
     if (lits.empty()) {
         return sat_bool::False;
     } else if (lits.size() == 1) {
-        return assgn->assign_and_enqueue(lits[0]) ? sat_bool::True : sat_bool::False;
+        return assgn->assign_and_enqueue(lits[0], this) ? sat_bool::True : sat_bool::False;
     } else {
         watch1 = 0;
         watch2 = 1;
@@ -87,7 +87,7 @@ sat_bool clause::init(assignment *assgn) {
     }
 }
 
-sat_bool clause::init_learnt(lit watch, assignment *assgn, priority *prio) {
+sat_bool clause::init_learnt(lit watch, assignment *assgn, priority *prio, watch_list *twoatch) {
     if (lits.empty()) {
         return sat_bool::False;
     }
@@ -110,6 +110,8 @@ sat_bool clause::init_learnt(lit watch, assignment *assgn, priority *prio) {
         prio->enhance(lits[i].get_var());
     }
     watch2 = var;
+    twoatch->nadd_clause(lits[watch1], this);
+    twoatch->nadd_clause(lits[watch2], this);
     return sat_bool::Undef;
 }
 
