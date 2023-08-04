@@ -24,7 +24,7 @@ sat_bool solver::solve() {
                 lit asserting = {0, false};
                 int backtrack_level = calc_reason(conflict, learnt_clause, &asserting);
                 assgn.undo_until(backtrack_level);
-                sat_bool value = learnt_clause->init_learnt(asserting, &assgn, &prio);
+                sat_bool value = learnt_clause->init_learnt(asserting, &assgn, &prio, &twoatch);
                 if (value != sat_bool::Undef) {
                     if (value == sat_bool::False) {
                         return sat_bool::False;

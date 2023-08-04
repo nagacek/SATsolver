@@ -8,7 +8,7 @@ void assignment::init(int var) {
     assgn[var] = sat_bool::Undef;
 }
 
-bool assignment::assign_and_enqueue(lit mk_true, clause* reason) {
+bool assignment::assign_and_enqueue(lit mk_true, clause * const & reason) {
     int var = (int) mk_true.get_var();
     if (assgn[var] != sat_bool::Undef) {
         if (apply(mk_true) == sat_bool::False) {
@@ -51,12 +51,16 @@ void assignment::undo_last() {
     assgn[var] = sat_bool::Undef;
     assgn_levels[var] = -1;
     reasons[var] = nullptr;
+
+    if (level_sep[level_sep.size() - 1] > chrono_assgn.size() - 1) {
+        level_sep.pop_back();
+    }
 }
 
 void assignment::undo_until(int level) {
-    int i = level_sep.size();
+    int i = chrono_assgn.size();
     int until = level_sep[level];
-    for (; i < until; i--) {
+    for (; i > until; i--) {
         undo_last();
     }
 }

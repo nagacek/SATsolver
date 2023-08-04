@@ -29,8 +29,12 @@ lit priority::decide(assignment *assgn, cnf *cnf) {
 }
 
 void priority::enhance(int var) {
-    if (prio[var] += variable_enhance > 1e100) {
-
+    prio[var] += variable_enhance;
+    if (prio[var] > 1e100) {
+        for (auto &p : prio) {
+            p *= 1e-100;
+        }
+        variable_enhance *= 1e-100;
     }
 }
 

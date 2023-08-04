@@ -32,7 +32,7 @@ public:
 
     void init_watch(watch_list *twoatch);
 
-    sat_bool init_learnt(lit watch, assignment* assgn, priority *prio);
+    sat_bool init_learnt(lit watch, assignment* assgn, priority *prio, watch_list *twoatch);
 
     void calc_reason(lit of, vector<lit> *reason);
 
