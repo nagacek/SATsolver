@@ -2,6 +2,7 @@
 // Created by natalia on 31.07.23.
 //
 #include "logger.h"
+#include "lit.h"
 
 void logger::log(type type_num, const std::string &msg) {
     if (type_num > LOG_LEVEL) {

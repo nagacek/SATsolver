@@ -8,6 +8,8 @@ void clause::add_lit(lit lit) {
 }
 
 bool clause::propagate(lit lit, watch_list *twoatch, assignment *assgn) {
+    logger::log(logger::DEBUG_VERBOSE, lit.to_string() + " -prop-> " + this->to_string(true));
+
     if (lits[watch1] == lit.neg_copy()) {
         int changed_watch = watch1;
         watch1 = watch2;
@@ -21,9 +23,11 @@ bool clause::propagate(lit lit, watch_list *twoatch, assignment *assgn) {
     }
 
     if (swap_watch2(twoatch, assgn)) {
+        logger::log(logger::DEBUG_VERBOSE, " -new_watch-> " + this->to_string(true));
         return true;
     }
 
+    // quasi-unit
     twoatch->add_clause(lit, this);
     return assgn->assign_and_enqueue(lits[watch1], this);
 }
@@ -49,11 +53,12 @@ bool clause::swap_watch2(watch_list *twoatch, assignment *assgn) {
     }
     return false;
 }
+
 sat_bool clause::init(assignment *assgn) {
     vector<sat_bool> duplicates = vector<sat_bool>(assgn->get_lit_num());
     std::fill(duplicates.begin(), duplicates.end(), sat_bool::Undef);
 
-    for (lit lit : lits) {
+    for (lit lit: lits) {
         sat_bool value = assgn->apply(lit);
         if (value == sat_bool::True) {
             return sat_bool::True;
@@ -72,7 +77,7 @@ sat_bool clause::init(assignment *assgn) {
             lits.erase(unique(lits.begin(), lits.end()), lits.end());
         }
         if (duplicates[i] == sat_bool::False) {
-            lits.erase(std::remove(lits.begin(), lits.end(), lit((int)i/2, i%2)), lits.end());
+            lits.erase(std::remove(lits.begin(), lits.end(), lit((int) i / 2, i % 2)), lits.end());
         }
     }
 
@@ -91,11 +96,9 @@ sat_bool clause::init_learnt(lit watch, assignment *assgn, priority *prio, watch
     if (lits.empty()) {
         return sat_bool::False;
     }
-
     if (lits.size() == 1) {
         return assgn->assign_and_enqueue(watch, this) ? sat_bool::True : sat_bool::False;
     }
-    lits.emplace_back(watch);
     learnt = true;
     int var = -1;
     int max_level = -1;
@@ -107,19 +110,22 @@ sat_bool clause::init_learnt(lit watch, assignment *assgn, priority *prio, watch
             max_level = inter_level;
             var = i;
         }
-        prio->enhance(lits[i].get_var());
+        prio->enhance((int)lits[i].get_var());
     }
     watch2 = var;
     twoatch->nadd_clause(lits[watch1], this);
     twoatch->nadd_clause(lits[watch2], this);
+
+    if(!assgn->assign_and_enqueue(lits[watch1], this)) {
+        logger::log(logger::ERROR, "Asserted lit " + lits[watch1].to_string() + " of learnt clause is not assertable.");
+    }
     return sat_bool::Undef;
 }
 
 void clause::calc_reason(lit of, vector<lit> *reason) {
     if (logger::cond_log(logger::type::ERROR) && !(of == lits[watch1]) && of.get_var() != 0) {
         logger::log(logger::type::ERROR,
-                    std::string("Given literal ").append((of.is_neg() ? "¬" : "")).append("[").append(
-                            to_string(of.get_var())).append("] is not conflicting"));
+                    std::string("Given literal ").append(of.to_string()).append(" is not conflicting"));
     }
     for (int i = 0; i < lits.size(); i++) {
         if (i == watch1 && of == lits[watch1]) {
@@ -131,7 +137,7 @@ void clause::calc_reason(lit of, vector<lit> *reason) {
 
 int clause::occurrences(int var) {
     int ret_val = 0;
-    for (lit lit : lits) {
+    for (lit lit: lits) {
         if (lit.get_var() == var) {
             lit.is_neg() ? ret_val-- : ret_val++;
         }
@@ -142,4 +148,21 @@ int clause::occurrences(int var) {
 void clause::init_watch(watch_list *twoatch) {
     twoatch->nadd_clause(lits[watch1], this); //??
     twoatch->nadd_clause(lits[watch2], this);
+}
+
+std::string clause::to_string(bool show_watches) {
+    std::string ret_val = "{";
+    std::string add;
+    for (int i = 0; i < lits.size(); i++) {
+        if (show_watches && (i == watch1 || i == watch2)) {
+            add = "*";
+        } else {
+            add = "";
+        }
+        ret_val.append(lits[i].to_string()).append(add).append(", ");
+    }
+    ret_val.pop_back();
+    ret_val.pop_back();
+    ret_val.append("}");
+    return ret_val;
 }

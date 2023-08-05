@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <cstdio>
+#include "lit.h"
 
 namespace logger {
     const std::string file = "stdout";
@@ -20,9 +21,10 @@ namespace logger {
         WARNING,
         DEBUG,
         ENHANCE,
-        DEBUG_VERBOSE
+        DEBUG_VERBOSE,
+        DEBUG_VERY_VERBOSE
     };
-    const type LOG_LEVEL = type::DEBUG_VERBOSE;
+    const type LOG_LEVEL = type::INFO;
 
     const std::string message_types[] =
             {
@@ -32,7 +34,8 @@ namespace logger {
                     "WARNING",
                     "DEBUG",
                     "ENHANCE",
-                    "DEBUG_VERBOSE"
+                    "DEBUG_VERBOSE",
+                    "DEBUG_VERY_VERBOSE"
             };
 
 

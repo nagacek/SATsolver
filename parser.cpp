@@ -77,7 +77,7 @@ namespace parser {
         if (word.empty())
             throw invalid_format_exception("invalid variable count declaration");
         unsigned var_num = wtoi(word);
-        assgn->set_var_num(var_num);
+        assgn->set_var_num((int)var_num);
         wl->init(var_num);
 
         next_word(line, word);
