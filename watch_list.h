@@ -15,6 +15,9 @@ class watch_list {
     vector<vector<clause*>> list;
 
 public:
+    watch_list() {
+        list = vector<vector<clause*>>();
+    }
 
     void init(unsigned int size);
 

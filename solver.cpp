@@ -5,37 +5,49 @@
 #include "solver.h"
 
 sat_bool solver::solve() {
+    logger::log(logger::INFO, "Initializing");
     cnf_val.init_watches(&twoatch);
     prio.init(assgn.get_var_num());
+    logger::log(logger::INFO, "Solving");
     if (state == sat_bool::False) {
         return sat_bool::False;
     }
     while (true) {
-        if (allAssigned()) {
-            return sat_bool::True;
+        clause *conflict = assgn.propagate(&twoatch);
+
+        if (conflict != nullptr) {
+
+            if (assgn.get_level() == 0) {
+                return sat_bool::False;
+            }
+
+            clause *learnt_clause = cnf_val.add_learnt_clause();
+            lit asserting = {0, false};
+            int backtrack_level = calc_reason(conflict, learnt_clause, &asserting);
+            assgn.undo_until(backtrack_level);
+            sat_bool value = learnt_clause->init_learnt(asserting, &assgn, &prio, &twoatch);
+
+            if (value != sat_bool::Undef) {
+                if (value == sat_bool::False) {
+                    return sat_bool::False;
+                }
+                cnf_val.reverse_last_learnt();
+            }
+
+            logger::log(logger::DEBUG_VERBOSE, "Learnt reason added is " + learnt_clause->to_string(true));
+            prio.update();
         } else {
+            if (allAssigned()) {
+                return sat_bool::True;
+            }
+
             lit decided = prio.decide(&assgn, &cnf_val);
             assgn.new_decision_level();
             assgn.assign_and_enqueue(decided);
-
-            clause* conflict = assgn.propagate(&twoatch);
-            if (conflict != nullptr) {
-                clause* learnt_clause = cnf_val.add_learnt_clause();
-                lit asserting = {0, false};
-                int backtrack_level = calc_reason(conflict, learnt_clause, &asserting);
-                assgn.undo_until(backtrack_level);
-                sat_bool value = learnt_clause->init_learnt(asserting, &assgn, &prio, &twoatch);
-                if (value != sat_bool::Undef) {
-                    if (value == sat_bool::False) {
-                        return sat_bool::False;
-                    }
-                    cnf_val.reverse_last_learnt();
-                }
-                prio.update();
-            }
         }
     }
 }
+
 
 bool solver::allAssigned() {
     for (int i = 1; i <= assgn.get_var_num(); i++) {
@@ -46,7 +58,7 @@ bool solver::allAssigned() {
     return true;
 }
 
-int solver::calc_reason(clause *conflict, clause *learnt, lit* asserting) {
+int solver::calc_reason(clause *conflict, clause *learnt, lit *asserting) {
     lit expansion = {0, false};
     int counter = 0;
     int max_level = 0;
@@ -62,7 +74,7 @@ int solver::calc_reason(clause *conflict, clause *learnt, lit* asserting) {
 
         for (int i = 0; i < inter_reason.size(); i++) {
             lit new_expansion = inter_reason[i];
-            int var = (int)new_expansion.get_var();
+            int var = (int) new_expansion.get_var();
             if (!lits_seen[var]) {
                 lits_seen[var] = true;
                 int exp_level = assgn.get_level(new_expansion);
@@ -79,11 +91,12 @@ int solver::calc_reason(clause *conflict, clause *learnt, lit* asserting) {
             expansion = assgn.get_last_assign();
             conflict = assgn.get_reason(expansion);
             assgn.undo_last();
-        } while(!lits_seen[expansion.get_var()]);
+        } while (!lits_seen[expansion.get_var()]);
         counter--;
     } while (counter > 0);
 
     *asserting = expansion.neg_copy();
+    learnt->add_lit(expansion.neg_copy());
 
     return max_level;
 }

@@ -41,6 +41,11 @@ public:
     lit copy() { return {var, is_negative}; }
     lit neg_copy() { return {var, !is_negative}; }
     bool operator==(lit b){ return get_id() == b.get_id(); }
+
+    std::string to_string() {
+        return std::string((is_neg() ? "¬" : "")).append("[").append(
+                ::to_string(get_var())).append("]");
+    }
 };
 
 

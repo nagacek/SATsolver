@@ -31,8 +31,6 @@ public:
         var_num = 0;
     }
 
-    void init(int var);
-
     bool assign_and_enqueue(lit mk_true, clause * const & reason = nullptr);
 
     clause *propagate(watch_list *twoatch);

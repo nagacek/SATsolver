@@ -39,6 +39,8 @@ public:
     sat_bool init(assignment *assgn);
 
     int occurrences(int var);
+
+    std::string to_string(bool show_watches);
 };
 #include "assignment.h"
 #include "priority.h"
