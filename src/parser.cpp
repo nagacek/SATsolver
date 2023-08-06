@@ -96,6 +96,8 @@ namespace parser {
         if (!source.is_open()) {
             throw invalid_file_exception();
         }
+        logger::log(logger::INFO, "------ Instance \"" + cnf_file + "\" ------");
+        logger::log(logger::INFO, "Parsing");
         std::string line;
 
         assignment *assgn = s.get_assignment();

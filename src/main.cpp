@@ -5,7 +5,6 @@
 int main(int argc,  char **argv) {
     solver solver(1.0, 1.05);
 
-    logger::log(logger::INFO, "Parsing");
     std::string cnf_file = parser::parse(argc, argv, solver);
     logger::log(logger::INFO, "Parsing finished");
 

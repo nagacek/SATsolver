@@ -3,10 +3,11 @@ project(SATsolver)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(SATsolver parser.cpp parser.h main.cpp exceptions/sat_exception.h solver.cpp solver.h cnf.cpp cnf.h clause.h lit.h sat_bool.h assignment.h watch_list.cpp watch_list.h
-        logger.h
-        logger.cpp
-        assignment.cpp
-        clause.cpp
-        priority.cpp
-        priority.h)
+add_executable(SATsolver src/parser.cpp src/parser.h src/main.cpp src/exceptions/sat_exception.h src/solver.cpp src/solver.h src/cnf.cpp src/cnf.h src/clause.h src/lit.h src/sat_bool.h src/assignment.h src/watch_list.cpp src/watch_list.h
+        src/logger.h
+        src/logger.cpp
+        src/assignment.cpp
+        src/clause.cpp
+        src/priority.cpp
+        src/priority.h)
+
