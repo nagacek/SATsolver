@@ -8,7 +8,8 @@ clause* cnf::add_clause() {
     return &clauses.emplace_back();
 }
 
-clause* cnf::add_learnt_clause() {
+clause* cnf::add_learnt_clause(priority * prio) {
+    prio->new_cla();
     return &learnt_clauses.emplace_back();
 }
 
@@ -37,8 +38,44 @@ int cnf::occurrences(int var) {
     return ret_val;
 }
 
+int cnf::find_learnt(clause * conflict) {
+    int i = 0;
+    for (clause &cl : learnt_clauses) {
+        if (&cl == conflict) {
+            return i;
+        }
+        i++;
+    }
+    return -1;
+}
+
+int cnf::get_learnt_num() {
+    return (int)learnt_clauses.size();
+}
+
+int cnf::get_clause_num() {
+    return clause_num;
+}
+
 void cnf::init_watches(watch_list *twoatch) {
     for (clause &cl : clauses) {
         cl.init_watch(twoatch);
+    }
+}
+
+void cnf::prune_clauses(priority *prio, watch_list *twoatch) {
+    double median = prio->calc_median();
+    double threshold = prio->get_cla_thresh();
+
+    int num = 0;
+    for (auto it = clauses.begin(); it != clauses.end();) {
+        if (!it->is_locked() && (prio->get_cla_prio(num) < median || prio->get_cla_prio(num) < threshold)) {
+            it->cancel_watches(twoatch);
+            it = clauses.erase(it);
+            prio->delete_cla(num);
+        } else {
+            it++;
+            num++;
+        }
     }
 }

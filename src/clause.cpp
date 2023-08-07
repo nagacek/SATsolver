@@ -150,6 +150,15 @@ void clause::init_watch(watch_list *twoatch) {
     twoatch->nadd_clause(lits[watch2], this);
 }
 
+void clause::cancel_watches(watch_list *twoatch) {
+    if (!twoatch->nremove_clause(lits[watch1], this)) {
+        logger::log(logger::ERROR, "Watched clause could not be found in list for literal " + lits[watch1].to_string());
+    }
+    if (!twoatch->nremove_clause(lits[watch2], this)) {
+        logger::log(logger::ERROR, "Watched literal could not be found in list for literal " + lits[watch2].to_string());
+    }
+}
+
 std::string clause::to_string(bool show_watches) {
     std::string ret_val = "{";
     std::string add;
@@ -165,4 +174,16 @@ std::string clause::to_string(bool show_watches) {
     ret_val.pop_back();
     ret_val.append("}");
     return ret_val;
+}
+
+void clause::toggle_lock() {
+    locked = !locked;
+}
+
+bool clause::is_locked() {
+    return locked;
+}
+
+bool clause::is_learnt() {
+    return learnt;
 }

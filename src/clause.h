@@ -16,12 +16,14 @@ private:
     int watch1;
     int watch2;
     bool learnt;
+    bool locked;
 public:
     clause() {
         lits = std::vector<lit>();
         watch1 = -1;
         watch2 = -1;
         learnt =  false;
+        locked = false;
     }
 
     void add_lit(lit lit);
@@ -41,6 +43,14 @@ public:
     int occurrences(int var);
 
     std::string to_string(bool show_watches);
+
+    void toggle_lock();
+
+    bool is_locked();
+
+    void cancel_watches(watch_list *twoatch);
+
+    bool is_learnt();
 };
 #include "assignment.h"
 #include "priority.h"
