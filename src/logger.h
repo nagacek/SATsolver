@@ -19,12 +19,12 @@ namespace logger {
         ERROR,
         INFO,
         WARNING,
-        DEBUG,
         ENHANCE,
+        DEBUG,
         DEBUG_VERBOSE,
         DEBUG_VERY_VERBOSE
     };
-    const type LOG_LEVEL = type::INFO;
+    const type LOG_LEVEL = type::ENHANCE;
 
     const std::string message_types[] =
             {
@@ -32,8 +32,8 @@ namespace logger {
                     "ERROR",
                     "INFO",
                     "WARNING",
-                    "DEBUG",
                     "ENHANCE",
+                    "DEBUG",
                     "DEBUG_VERBOSE",
                     "DEBUG_VERY_VERBOSE"
             };
@@ -44,6 +44,10 @@ namespace logger {
     void log_stdout(type type_num, const std::string &msg);
 
     bool cond_log(type type_num);
+
+    void start_parsing();
+
+
 };
 
 

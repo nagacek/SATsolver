@@ -6,6 +6,7 @@
 #define SATSOLVER_SOLVER_H
 
 
+#include <chrono>
 #include "assignment.h"
 #include "cnf.h"
 #include "watch_list.h"
@@ -18,8 +19,21 @@ class solver {
     priority prio;
     sat_bool state;
 
+    // statistics
+    double prop_time = 0;
+    double reason_time = 0;
+    double assert_time = 0;
+    double all_time = 0;
+    double conf_no = 0;
+    double learnt_no = 0;
+    double prop_time_total = 0;
+    double reason_time_total = 0;
+    double assert_time_total = 0;
+    double all_time_total = 0;
 
 public:
+
+
     solver(double var_en, double var_dim) {
         assgn = assignment();
         cnf_val = cnf();
@@ -39,11 +53,18 @@ public:
     sat_bool solve();
     void set_state(sat_bool st);
 
+    void do_stats();
+
+    void do_total_stats();
+
 private:
 
     bool allAssigned();
 
     int calc_reason(clause *conflict, clause *learnt, lit* asserting);
+
+    void reset_times();
+
 };
 
 
