@@ -26,6 +26,7 @@ bool assignment::assign_and_enqueue(lit mk_true, clause *const &reason) {
         chrono_assgn.emplace_back(mk_true);
         assgn_levels[var] = (int) level_sep.size();
         reasons[var] = reason;
+        reason->toggle_lock();
         propagation.emplace(mk_true);
         return true;
     }
@@ -55,6 +56,7 @@ void assignment::undo_last() {
     int var = (int) lit.get_var();
     assgn[var] = sat_bool::Undef;
     assgn_levels[var] = -1;
+    reasons[var]->toggle_lock();
     reasons[var] = nullptr;
 
     if (level_sep[level_sep.size() - 1] > ((int)chrono_assgn.size()) - 1) {
@@ -142,4 +144,8 @@ clause *assignment::get_reason(lit lit) {
 
 int assignment::get_lit_num() {
     return var_num * 2 + 1;
+}
+
+int assignment::get_assgn_num() {
+    return chrono_assgn.size();
 }

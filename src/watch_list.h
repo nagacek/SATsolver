@@ -30,6 +30,10 @@ public:
     bool add_clause(lit lit, clause * const &clause);
 
     bool nadd_clause(lit lit, clause * const &clause);
+
+    bool remove_clause(lit lit, clause * const &clause);
+
+    bool nremove_clause(lit lit, clause *const &clause);
 };
 
 

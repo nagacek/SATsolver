@@ -55,3 +55,25 @@ bool watch_list::add_clause(lit lit, clause * const &clause) {
     }
 }
 
+bool watch_list::remove_clause(lit lit, clause *const &clause) {
+    auto it = list.begin() + lit.get_id();
+    auto it_found = std::find(it->begin(), it->end(), clause);
+    if (it_found != it->end()) {
+        it->erase(it_found);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool watch_list::nremove_clause(lit lit, clause *const &clause) {
+    auto it = list.begin() + lit.get_nid();
+    auto it_found = std::find(it->begin(), it->end(), clause);
+    if (it_found != it->end()) {
+        it->erase(it_found);
+        return true;
+    } else {
+        return false;
+    }
+}
+

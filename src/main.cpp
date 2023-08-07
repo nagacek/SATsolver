@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
     using std::chrono::duration;
     using std::chrono::milliseconds;
 
-    solver solver(1.0, 1.05);
+    solver solver(1.0, 1.05, 1.0, 1.05);
 
     auto t1 = std::chrono::high_resolution_clock::now();
     std::string cnf_file = parser::parse(argc, argv, solver);
@@ -22,15 +22,11 @@ int main(int argc, char **argv) {
         logger::log(logger::INFO, "Parsing finished");
     }
 
-    sat_bool result = solver.solve();
-    if (result == sat_bool::True) {
+    if (solver.solve()) {
         log_stdout(logger::type::FINISHED, "SATISFIABLE");
         parser::unparse(solver.get_assignment(), cnf_file);
-    } else if (result == sat_bool::False) {
-        log_stdout(logger::type::FINISHED, "UNSATISFIABLE");
     } else {
-        log(logger::type::ERROR, "No result obtained when finished.");
-        exit(-1);
+        log_stdout(logger::type::FINISHED, "UNSATISFIABLE");
     }
 
     solver.do_total_stats();

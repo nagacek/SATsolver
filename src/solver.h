@@ -34,11 +34,11 @@ class solver {
 public:
 
 
-    solver(double var_en, double var_dim) {
+    solver(double var_en, double var_dim, double cla_en, double cla_dim) {
         assgn = assignment();
         cnf_val = cnf();
         twoatch = watch_list();
-        prio = priority(var_en, var_dim);
+        prio = priority(var_en, var_dim, cla_en, cla_dim);
         state = sat_bool::Undef;
     }
     assignment* get_assignment() {
@@ -50,12 +50,17 @@ public:
     watch_list* get_watch_list() {
         return &twoatch;
     }
-    sat_bool solve();
+    bool solve();
+
+    sat_bool try_solve(int max_learnts, int max_conflicts);
+
     void set_state(sat_bool st);
 
     void do_stats();
 
     void do_total_stats();
+
+    void init();
 
 private:
 
