@@ -5,8 +5,7 @@
 #include "cnf.h"
 
 clause* cnf::add_clause() {
-    auto new_clause = clauses.insert(clauses.end(), clause());
-    return new_clause.base();
+    return &clauses.emplace_back();
 }
 
 clause* cnf::add_learnt_clause() {

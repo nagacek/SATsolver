@@ -11,12 +11,13 @@
 
 class cnf {
 private:
-    std::vector<clause> clauses;
+    std::deque<clause> clauses;
     std::deque<clause> learnt_clauses;
     int clause_num;
+    int fill_num;
 public:
     cnf() {
-        clauses = std::vector<clause>();
+        clauses = std::deque<clause>();
         learnt_clauses = std::deque<clause>();
         clause_num = -1;
     }
