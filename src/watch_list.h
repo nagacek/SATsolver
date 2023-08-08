@@ -12,24 +12,22 @@
 #include "assignment.h"
 
 class watch_list {
-    vector<vector<clause*>> list;
+    vector<vector<weak_ptr<clause>>> list;
 
 public:
     watch_list() {
-        list = vector<vector<clause*>>();
+        list = vector<vector<weak_ptr<clause>>>();
     }
 
     void init(unsigned int size);
 
-    vector<clause *> *get_clauses(lit lit);
-
     void undo(lit lit);
 
-    clause *propagate(lit lit, assignment* assgn);
+    weak_ptr<clause> propagate(lit lit, assignment* assgn);
 
-    bool add_clause(lit lit, clause * const &clause);
+    void add_clause(lit lit, weak_ptr<clause> clause);
 
-    bool nadd_clause(lit lit, clause * const &clause);
+    void nadd_clause(lit lit, weak_ptr<clause> clause);
 };
 
 

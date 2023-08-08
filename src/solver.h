@@ -61,7 +61,7 @@ private:
 
     bool allAssigned();
 
-    int calc_reason(clause *conflict, clause *learnt, lit* asserting);
+    int calc_reason(weak_ptr<clause> conflict, vector<lit> & learnt, lit* asserting);
 
     void reset_times();
 

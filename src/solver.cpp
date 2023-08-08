@@ -23,14 +23,14 @@ sat_bool solver::solve() {
     while (true) {
         t0_0 = std::chrono::high_resolution_clock::now();
         auto t1 = std::chrono::high_resolution_clock::now();
-        clause *conflict = assgn.propagate(&twoatch);
+        weak_ptr<clause> conflict = assgn.propagate(&twoatch);
         auto t2 = std::chrono::high_resolution_clock::now();
         if (logger::cond_log(logger::INFO)) {
             prop_time += ((std::chrono::duration<double, std::milli>) (t2 - t1)).count();
             prop_time_total += ((std::chrono::duration<double, std::milli>) (t2 - t1)).count();
         }
 
-        if (conflict != nullptr) {
+        if (!conflict.expired()) {
             if (logger::cond_log(logger::INFO)) {
                 conf_no++;
             }
@@ -38,11 +38,11 @@ sat_bool solver::solve() {
                 return sat_bool::False;
             }
 
-            clause *learnt_clause = cnf_val.add_learnt_clause();
+            std::vector<lit> learnt_lits;
             lit asserting = {0, false};
 
             auto t3 = std::chrono::high_resolution_clock::now();
-            int backtrack_level = calc_reason(conflict, learnt_clause, &asserting);
+            int backtrack_level = calc_reason(conflict, learnt_lits, &asserting);
             auto t4 = std::chrono::high_resolution_clock::now();
             if (logger::cond_log(logger::INFO)) {
                 reason_time += ((std::chrono::duration<double, std::milli>) (t4 - t3)).count();
@@ -50,7 +50,8 @@ sat_bool solver::solve() {
             }
 
             assgn.undo_until(backtrack_level);
-            sat_bool value = learnt_clause->init_learnt(asserting, &assgn, &prio, &twoatch);
+            weak_ptr<clause> learnt_clause = cnf_val.add_learnt_clause(learnt_lits);
+            sat_bool value = learnt_clause.lock()->init_learnt(asserting, &assgn, &prio, &twoatch);
 
             if (value != sat_bool::Undef) {
                 if (value == sat_bool::False) {
@@ -61,7 +62,7 @@ sat_bool solver::solve() {
                 learnt_no++;
             }
 
-            logger::log(logger::DEBUG_VERBOSE, "Learnt reason added is " + learnt_clause->to_string(true));
+            logger::log(logger::DEBUG_VERBOSE, "Learnt reason added is " + learnt_clause.lock()->to_string(true));
 
             auto t5 = std::chrono::high_resolution_clock::now();
             prio.update();
@@ -138,7 +139,7 @@ bool solver::allAssigned() {
     return true;
 }
 
-int solver::calc_reason(clause *conflict, clause *learnt, lit *asserting) {
+int solver::calc_reason(weak_ptr<clause> conflict, vector<lit> & learnt, lit *asserting) {
     lit expansion = {0, false};
     int counter = 0;
     int max_level = 0;
@@ -150,7 +151,7 @@ int solver::calc_reason(clause *conflict, clause *learnt, lit *asserting) {
 
     do {
         inter_reason.clear();
-        conflict->calc_reason(expansion, &inter_reason);
+        conflict.lock()->calc_reason(expansion, &inter_reason);
 
         for (int i = 0; i < inter_reason.size(); i++) {
             lit new_expansion = inter_reason[i];
@@ -161,7 +162,7 @@ int solver::calc_reason(clause *conflict, clause *learnt, lit *asserting) {
                 if (exp_level == assgn.get_level()) {
                     counter++;
                 } else if (exp_level > 0) {
-                    learnt->add_lit(new_expansion.neg_copy());
+                    learnt.push_back(new_expansion.neg_copy());
                     max_level = max(max_level, exp_level);
                 }
             }
@@ -176,7 +177,7 @@ int solver::calc_reason(clause *conflict, clause *learnt, lit *asserting) {
     } while (counter > 0);
 
     *asserting = expansion.neg_copy();
-    learnt->add_lit(expansion.neg_copy());
+    learnt.push_back(expansion.neg_copy());
 
     return max_level;
 }

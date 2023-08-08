@@ -4,12 +4,12 @@
 
 #include "cnf.h"
 
-clause* cnf::add_clause() {
-    return &clauses.emplace_back();
+weak_ptr<clause> cnf::add_clause(const std::vector<lit> & lits) {
+    return clauses.emplace_back(new clause(lits));
 }
 
-clause* cnf::add_learnt_clause() {
-    return &learnt_clauses.emplace_back();
+weak_ptr<clause> cnf::add_learnt_clause(const std::vector<lit> & lits) {
+    return learnt_clauses.emplace_back(new clause(lits));
 }
 
 void cnf::set_clause_num(int num) {
@@ -30,15 +30,15 @@ void cnf::reverse_last() {
 int cnf::occurrences(int var) {
     int ret_val = 0;
 
-    for (clause &cl : clauses) {
-        ret_val += cl.occurrences(var);
+    for (shared_ptr<clause> & cl : clauses) {
+        ret_val += cl->occurrences(var);
     }
 
     return ret_val;
 }
 
 void cnf::init_watches(watch_list *twoatch) {
-    for (clause &cl : clauses) {
-        cl.init_watch(twoatch);
+    for (shared_ptr<clause> & cl : clauses) {
+        cl->init_watch(twoatch);
     }
 }
