@@ -152,10 +152,14 @@ void clause::init_watch(watch_list *twoatch) {
 
 void clause::cancel_watches(watch_list *twoatch) {
     if (!twoatch->nremove_clause(lits[watch1], this)) {
-        logger::log(logger::ERROR, "Watched clause could not be found in list for literal " + lits[watch1].to_string());
+        logger::log(logger::ERROR, "Watched clause " + this->to_string(true) + " could not be found in list for literal " + lits[watch1].neg_copy().to_string());
+    } else {
+        logger::log(logger::DEBUG, "Watched clause " + this->to_string(true) + " has been removed for literal " + lits[watch1].neg_copy().to_string());
     }
     if (!twoatch->nremove_clause(lits[watch2], this)) {
-        logger::log(logger::ERROR, "Watched literal could not be found in list for literal " + lits[watch2].to_string());
+        logger::log(logger::ERROR, "Watched clause " + this->to_string(true) + " could not be found in list for literal " + lits[watch2].neg_copy().to_string());
+    } else {
+        logger::log(logger::DEBUG, "Watched clause " + this->to_string(true) + " has been removed for literal " + lits[watch2].neg_copy().to_string());
     }
 }
 

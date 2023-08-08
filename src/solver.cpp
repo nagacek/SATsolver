@@ -81,6 +81,11 @@ sat_bool solver::try_solve(int max_learnts, int max_conflicts) {
             if (allAssigned()) {
                 return sat_bool::True;
             }
+            if (conf_no > max_conflicts) {
+                conf_no = 0;
+                assgn.undo_until(0);
+                return sat_bool::Undef;
+            }
 
             if (cnf_val.get_learnt_num() - assgn.get_assgn_num() > max_learnts) {
                 cnf_val.prune_clauses(&prio, &twoatch);

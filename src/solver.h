@@ -25,6 +25,7 @@ class solver {
     double assert_time = 0;
     double all_time = 0;
     double conf_no = 0;
+    double conf_no_total = 0;
     double learnt_no = 0;
     double prop_time_total = 0;
     double reason_time_total = 0;

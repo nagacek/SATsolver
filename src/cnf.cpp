@@ -68,10 +68,10 @@ void cnf::prune_clauses(priority *prio, watch_list *twoatch) {
     double threshold = prio->get_cla_thresh();
 
     int num = 0;
-    for (auto it = clauses.begin(); it != clauses.end();) {
+    for (auto it = learnt_clauses.begin(); it != learnt_clauses.end();) {
         if (!it->is_locked() && (prio->get_cla_prio(num) < median || prio->get_cla_prio(num) < threshold)) {
             it->cancel_watches(twoatch);
-            it = clauses.erase(it);
+            it = learnt_clauses.erase(it);
             prio->delete_cla(num);
         } else {
             it++;

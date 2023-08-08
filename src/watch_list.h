@@ -14,6 +14,8 @@
 class watch_list {
     vector<vector<clause*>> list;
 
+    int lits_prev = 0;
+
 public:
     watch_list() {
         list = vector<vector<clause*>>();
@@ -34,6 +36,8 @@ public:
     bool remove_clause(lit lit, clause * const &clause);
 
     bool nremove_clause(lit lit, clause *const &clause);
+
+    void debug();
 };
 
 

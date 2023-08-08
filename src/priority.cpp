@@ -77,6 +77,12 @@ double priority::calc_median() {
             l = i;
         if (i >= target)
             r = j;
+        if (abs(l - target) <= target/10)
+            return median_vec[l];
+        if (abs(r - target) <= target/10)
+            return median_vec[r];
+        int pivot = ((int)(std::rand()) % (median_vec.size() - r)) + l;
+        pivot_val = median_vec[pivot];
     }
     return median_vec[r];
 }
