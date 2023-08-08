@@ -42,9 +42,9 @@ void watch_list::add_clause(lit lit, weak_ptr<clause> clause) {
     (list.begin()+lit.get_id())->push_back(clause);
 }
 
-bool watch_list::remove_clause(lit lit, clause *const &clause) {
+bool watch_list::remove_clause(lit lit, weak_ptr<clause> cl) {
     auto it = list.begin() + lit.get_id();
-    auto it_found = std::find(it->begin(), it->end(), clause);
+    auto it_found = std::find_if(it->begin(), it->end(), [cl](const std::weak_ptr<clause>& i){return cl.lock() == i.lock();});
     if (it_found != it->end()) {
         it->erase(it_found);
         return true;
@@ -53,17 +53,16 @@ bool watch_list::remove_clause(lit lit, clause *const &clause) {
     }
 }
 
-bool watch_list::nremove_clause(lit lit, clause *const &clause) {
-    debug();
+bool watch_list::nremove_clause(lit lit, weak_ptr<clause> cl) {
     if (lit.get_var() == 224) {
         int i = 5;
     }
     auto it = list.begin() + lit.get_nid();
-    auto it_found = std::find(it->begin(), it->end(), clause);
+    auto it_found = std::find_if(it->begin(), it->end(), [cl](const std::weak_ptr<clause>& i){return cl.lock() == i.lock();});
     if (logger::cond_log(logger::DEBUG)) {
         logger::log(logger::DEBUG, lit.neg_copy().to_string() + " contains:");
         for (auto it2 = it->begin(); it2 != it->end(); it2++) {
-            logger::log(logger::DEBUG, "-> " + (*it2)->to_string(true));
+            logger::log(logger::DEBUG, "-> " + (it2->lock())->to_string(true));
         }
     }
     if (it_found != it->end()) {
@@ -71,12 +70,6 @@ bool watch_list::nremove_clause(lit lit, clause *const &clause) {
         return true;
     } else {
         return false;
-    }
-}
-
-void watch_list::debug() {
-    for (auto & it : list[481]) {
-        logger::log(logger::ERROR, it->to_string(true));
     }
 }
 

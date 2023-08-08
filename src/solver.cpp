@@ -63,9 +63,9 @@ sat_bool solver::try_solve(int max_learnts, int max_conflicts) {
                 cnf_val.reverse_last_learnt();
             } else if (logger::cond_log(logger::INFO)){
                 learnt_no++;
+                logger::log(logger::DEBUG_VERBOSE, "Learnt reason added is " + learnt_clause.lock()->to_string(true));
             }
 
-            logger::log(logger::DEBUG_VERBOSE, "Learnt reason added is " + learnt_clause.lock()->to_string(true));
 
             auto t5 = std::chrono::high_resolution_clock::now();
             prio.update();
@@ -140,9 +140,9 @@ int solver::calc_reason(weak_ptr<clause> conflict, vector<lit> & learnt, lit *as
     std::fill(lits_seen.begin(), lits_seen.end(), false);
 
     vector<lit> inter_reason = vector<lit>();
-    auto conflict_lock = conflict.lock();
 
     do {
+        auto conflict_lock = conflict.lock();
         if (conflict_lock->is_learnt()){
             prio.cla_enhance(cnf_val.find_learnt(conflict));
         }

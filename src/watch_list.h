@@ -35,7 +35,6 @@ public:
 
     bool nremove_clause(lit lit, weak_ptr<clause> clause);
 
-    void debug();
 };
 
 

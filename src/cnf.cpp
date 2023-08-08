@@ -70,7 +70,7 @@ void cnf::prune_clauses(priority *prio, watch_list *twoatch) {
     int num = 0;
     for (auto it = learnt_clauses.begin(); it != learnt_clauses.end();) {
         if (it->use_count() < 2 && (prio->get_cla_prio(num) < median || prio->get_cla_prio(num) < threshold)) { // unit clauses??
-            it->cancel_watches(twoatch);
+            (*it)->cancel_watches(twoatch);
             it = learnt_clauses.erase(it);
             prio->delete_cla(num);
         } else {

@@ -13,7 +13,6 @@ class assignment;
 class priority;
 class clause : public std::enable_shared_from_this<clause> {
 private:
-    std::vector<lit> lits;
     int watch1;
     int watch2;
     bool learnt;
