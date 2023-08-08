@@ -14,6 +14,8 @@
 class watch_list {
     vector<vector<weak_ptr<clause>>> list;
 
+    int lits_prev = 0;
+
 public:
     watch_list() {
         list = vector<vector<weak_ptr<clause>>>();
@@ -28,6 +30,11 @@ public:
     void add_clause(lit lit, weak_ptr<clause> clause);
 
     void nadd_clause(lit lit, weak_ptr<clause> clause);
+
+    bool remove_clause(lit lit, weak_ptr<clause> clause);
+
+    bool nremove_clause(lit lit, weak_ptr<clause> clause);
+
 };
 
 

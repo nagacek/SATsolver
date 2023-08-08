@@ -10,6 +10,10 @@
 bool clause::propagate(lit lit, watch_list *twoatch, assignment *assgn) {
     logger::log(logger::DEBUG_VERBOSE, lit.to_string() + " -prop-> " + this->to_string(true));
 
+    if (lit.get_var() == 134) {
+        int i = 5;
+    }
+
     if (lits[watch1] == lit.neg_copy()) {
         int changed_watch = watch1;
         watch1 = watch2;
@@ -84,7 +88,7 @@ sat_bool clause::init(assignment *assgn) {
     if (lits.empty()) {
         return sat_bool::False;
     } else if (lits.size() == 1) {
-        return assgn->assign_and_enqueue(lits[0], shared_from_this()) ? sat_bool::True : sat_bool::False;
+        return assgn->assign_and_enqueue(lits[0]) ? sat_bool::True : sat_bool::False;
     } else {
         watch1 = 0;
         watch2 = 1;
@@ -97,7 +101,7 @@ sat_bool clause::init_learnt(lit watch, assignment *assgn, priority *prio, watch
         return sat_bool::False;
     }
     if (lits.size() == 1) {
-        return assgn->assign_and_enqueue(watch, shared_from_this()) ? sat_bool::True : sat_bool::False;
+        return assgn->assign_and_enqueue(watch) ? sat_bool::True : sat_bool::False;
     }
     learnt = true;
     int var = -1;
@@ -151,12 +155,12 @@ void clause::init_watch(watch_list *twoatch) {
 }
 
 void clause::cancel_watches(watch_list *twoatch) {
-    if (!twoatch->nremove_clause(lits[watch1], this)) {
+    if (!twoatch->nremove_clause(lits[watch1], shared_from_this())) {
         logger::log(logger::ERROR, "Watched clause " + this->to_string(true) + " could not be found in list for literal " + lits[watch1].neg_copy().to_string());
     } else {
         logger::log(logger::DEBUG, "Watched clause " + this->to_string(true) + " has been removed for literal " + lits[watch1].neg_copy().to_string());
     }
-    if (!twoatch->nremove_clause(lits[watch2], this)) {
+    if (!twoatch->nremove_clause(lits[watch2], shared_from_this())) {
         logger::log(logger::ERROR, "Watched clause " + this->to_string(true) + " could not be found in list for literal " + lits[watch2].neg_copy().to_string());
     } else {
         logger::log(logger::DEBUG, "Watched clause " + this->to_string(true) + " has been removed for literal " + lits[watch2].neg_copy().to_string());
@@ -178,14 +182,6 @@ std::string clause::to_string(bool show_watches) {
     ret_val.pop_back();
     ret_val.append("}");
     return ret_val;
-}
-
-void clause::toggle_lock() {
-    locked = !locked;
-}
-
-bool clause::is_locked() {
-    return locked;
 }
 
 bool clause::is_learnt() {
