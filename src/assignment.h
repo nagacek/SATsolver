@@ -23,7 +23,7 @@ private:
     std::vector<int> level_sep;
     std::vector<int> assgn_levels;
     std::queue<lit> propagation;
-    std::vector<clause*> reasons;
+    std::vector<shared_ptr<clause>> reasons;
     int var_num;
 public:
     assignment() {
@@ -31,9 +31,9 @@ public:
         var_num = 0;
     }
 
-    bool assign_and_enqueue(lit mk_true, clause * const & reason = nullptr);
+    bool assign_and_enqueue(lit mk_true, shared_ptr<clause> reason = {});
 
-    clause *propagate(watch_list *twoatch);
+    weak_ptr<clause> propagate(watch_list *twoatch);
 
     sat_bool apply(lit lit);
 
@@ -59,7 +59,7 @@ public:
 
     lit get_last_assign();
 
-    clause* get_reason(lit lit);
+    weak_ptr<clause> get_reason(lit lit);
 };
 
 

@@ -25,19 +25,24 @@ namespace parser {
     sat_bool parse_clauses(ifstream &stream, cnf *cnf_val, assignment *assgn) {
         std::string line;
         std::string word;
-        bool new_clause = true;
-        clause *clause_ptr;
+        bool new_clause = false;
+        vector<lit> clause_lits;
+        weak_ptr<clause> clause_ptr;
         while (std::getline(stream, line)) {
             std::istringstream line_stream(line);
             while (next_word(line_stream, word)) {
                 if (new_clause) {
-                    clause_ptr = cnf_val->add_clause();
                     new_clause = false;
                 }
                 int value = wtoi(word);
                 if (value == 0) {
                     new_clause = true;
-                    sat_bool sat_value = clause_ptr->init(assgn);
+                    clause_ptr = cnf_val->add_clause(clause_lits);
+                    int i = clause_ptr.use_count();
+                    shared_ptr<clause> shared = clause_ptr.lock();
+                    i = clause_ptr.use_count();
+                    sat_bool sat_value = shared->init(assgn);
+                    clause_lits.clear();
                     if (sat_value != sat_bool::Undef) {
                         if (sat_value == sat_bool::False) {
                             return sat_bool::False;
@@ -47,7 +52,7 @@ namespace parser {
                     continue;
                 }
                 lit new_lit = lit(value);
-                clause_ptr->add_lit(new_lit);
+                clause_lits.push_back(new_lit);
             }
         }
         return sat_bool::Undef;
