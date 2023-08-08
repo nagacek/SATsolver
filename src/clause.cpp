@@ -3,12 +3,16 @@
 //
 #include "clause.h"
 
-void clause::add_lit(lit lit) {
+/*void clause::add_lit(lit lit) {
     lits.insert(lits.end(), lit);
-}
+}*/
 
 bool clause::propagate(lit lit, watch_list *twoatch, assignment *assgn) {
     logger::log(logger::DEBUG_VERBOSE, lit.to_string() + " -prop-> " + this->to_string(true));
+
+    if (lit.get_var() == 134) {
+        int i = 5;
+    }
 
     if (lits[watch1] == lit.neg_copy()) {
         int changed_watch = watch1;
@@ -18,7 +22,7 @@ bool clause::propagate(lit lit, watch_list *twoatch, assignment *assgn) {
 
     // fully assigned (and satisfied)
     if (assgn->apply(lits[watch1]) == sat_bool::True) {
-        twoatch->add_clause(lit, this); //??
+        twoatch->add_clause(lit, shared_from_this()); //??
         return true;
     }
 
@@ -28,22 +32,22 @@ bool clause::propagate(lit lit, watch_list *twoatch, assignment *assgn) {
     }
 
     // quasi-unit
-    twoatch->add_clause(lit, this);
-    return assgn->assign_and_enqueue(lits[watch1], this);
+    twoatch->add_clause(lit, shared_from_this());
+    return assgn->assign_and_enqueue(lits[watch1], shared_from_this());
 }
 
 bool clause::swap_watch2(watch_list *twoatch, assignment *assgn) {
     for (int i = watch2 + 1; i < lits.size(); i++) {
         if ((i != watch1) && (assgn->apply(lits[i]) != sat_bool::False)) {
             watch2 = i;
-            twoatch->nadd_clause(lits[i], this);
+            twoatch->nadd_clause(lits[i], shared_from_this());
             return true;
         }
     }
     for (int i = 0; i < watch2; i++) {
         if ((i != watch1) && (assgn->apply(lits[i]) != sat_bool::False)) {
             watch2 = i;
-            twoatch->nadd_clause(lits[i], this);
+            twoatch->nadd_clause(lits[i], shared_from_this());
             return true;
         }
     }
@@ -84,7 +88,7 @@ sat_bool clause::init(assignment *assgn) {
     if (lits.empty()) {
         return sat_bool::False;
     } else if (lits.size() == 1) {
-        return assgn->assign_and_enqueue(lits[0], this) ? sat_bool::True : sat_bool::False;
+        return assgn->assign_and_enqueue(lits[0]) ? sat_bool::True : sat_bool::False;
     } else {
         watch1 = 0;
         watch2 = 1;
@@ -97,7 +101,7 @@ sat_bool clause::init_learnt(lit watch, assignment *assgn, priority *prio, watch
         return sat_bool::False;
     }
     if (lits.size() == 1) {
-        return assgn->assign_and_enqueue(watch, this) ? sat_bool::True : sat_bool::False;
+        return assgn->assign_and_enqueue(watch) ? sat_bool::True : sat_bool::False;
     }
     learnt = true;
     int var = -1;
@@ -113,10 +117,10 @@ sat_bool clause::init_learnt(lit watch, assignment *assgn, priority *prio, watch
         prio->enhance((int)lits[i].get_var());
     }
     watch2 = var;
-    twoatch->nadd_clause(lits[watch1], this);
-    twoatch->nadd_clause(lits[watch2], this);
+    twoatch->nadd_clause(lits[watch1], shared_from_this());
+    twoatch->nadd_clause(lits[watch2], shared_from_this());
 
-    if(!assgn->assign_and_enqueue(lits[watch1], this)) {
+    if(!assgn->assign_and_enqueue(lits[watch1], shared_from_this())) {
         logger::log(logger::ERROR, "Asserted lit " + lits[watch1].to_string() + " of learnt clause is not assertable.");
     }
     return sat_bool::Undef;
@@ -146,8 +150,21 @@ int clause::occurrences(int var) {
 }
 
 void clause::init_watch(watch_list *twoatch) {
-    twoatch->nadd_clause(lits[watch1], this); //??
-    twoatch->nadd_clause(lits[watch2], this);
+    twoatch->nadd_clause(lits[watch1], shared_from_this()); //??
+    twoatch->nadd_clause(lits[watch2], shared_from_this());
+}
+
+void clause::cancel_watches(watch_list *twoatch) {
+    if (!twoatch->nremove_clause(lits[watch1], shared_from_this())) {
+        logger::log(logger::ERROR, "Watched clause " + this->to_string(true) + " could not be found in list for literal " + lits[watch1].neg_copy().to_string());
+    } else {
+        logger::log(logger::DEBUG, "Watched clause " + this->to_string(true) + " has been removed for literal " + lits[watch1].neg_copy().to_string());
+    }
+    if (!twoatch->nremove_clause(lits[watch2], shared_from_this())) {
+        logger::log(logger::ERROR, "Watched clause " + this->to_string(true) + " could not be found in list for literal " + lits[watch2].neg_copy().to_string());
+    } else {
+        logger::log(logger::DEBUG, "Watched clause " + this->to_string(true) + " has been removed for literal " + lits[watch2].neg_copy().to_string());
+    }
 }
 
 std::string clause::to_string(bool show_watches) {
@@ -165,4 +182,8 @@ std::string clause::to_string(bool show_watches) {
     ret_val.pop_back();
     ret_val.append("}");
     return ret_val;
+}
+
+bool clause::is_learnt() {
+    return learnt;
 }

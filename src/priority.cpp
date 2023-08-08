@@ -38,6 +38,79 @@ void priority::enhance(int var) {
     }
 }
 
+void priority::cla_enhance(int num) {
+    if (num < 0) {
+        logger::log(logger::ERROR, "Invalid learnt clause (could not be found)");
+    }
+    clause_prio[num] += clause_enhance;
+    if (clause_prio[num] > 1e100) {
+        for (auto &p : prio) {
+            p *= 1e-100;
+        }
+        clause_enhance *= 1e-100;
+    }
+}
+
 void priority::update() {
     variable_enhance *= variable_diminish;
+    clause_enhance *= clause_diminish;
+}
+
+double priority::calc_median() {
+    vector<double> median_vec(clause_prio);
+    double pivot_val;
+    if (old_pivot > -1) {
+        pivot_val = old_pivot;
+    } else {
+        int pivot = (int)(std::rand()) % median_vec.size();
+        pivot_val = median_vec[pivot];
+    }
+    int l = 0;
+    int r = (int)median_vec.size() - 1;
+    int target = (int)(median_vec.size()/2);
+
+    while(l < r) {
+        int i = l;
+        int j = r;
+        split(median_vec, i, j, pivot_val);
+        if (j <= target)
+            l = i;
+        if (i >= target)
+            r = j;
+        if (abs(l - target) <= target/10)
+            return median_vec[l];
+        if (abs(r - target) <= target/10)
+            return median_vec[r];
+        int pivot = ((int)(std::rand()) % (median_vec.size() - r)) + l;
+        pivot_val = median_vec[pivot];
+    }
+    return median_vec[r];
+}
+
+void priority::split(vector<double> &median_vec, int &i, int &j, double pivot_val) {
+    do {
+        while (median_vec[i] < pivot_val)
+            i++;
+        while (median_vec[j] > pivot_val)
+            j--;
+        double temp = median_vec[i];
+        median_vec[i] = median_vec[j];
+        median_vec[j] = temp;
+    } while(i < j);
+}
+
+double priority::get_cla_prio(int num) {
+    return clause_prio[num];
+}
+
+void priority::delete_cla(int num) {
+    clause_prio.erase(clause_prio.begin() + num);
+}
+
+double priority::get_cla_thresh() {
+    return clause_enhance / (int)clause_prio.size();
+}
+
+void priority::new_cla() {
+    clause_prio.push_back(clause_enhance);
 }

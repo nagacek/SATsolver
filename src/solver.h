@@ -25,6 +25,7 @@ class solver {
     double assert_time = 0;
     double all_time = 0;
     double conf_no = 0;
+    double conf_no_total = 0;
     double learnt_no = 0;
     double prop_time_total = 0;
     double reason_time_total = 0;
@@ -34,11 +35,11 @@ class solver {
 public:
 
 
-    solver(double var_en, double var_dim) {
+    solver(double var_en, double var_dim, double cla_en, double cla_dim) {
         assgn = assignment();
         cnf_val = cnf();
         twoatch = watch_list();
-        prio = priority(var_en, var_dim);
+        prio = priority(var_en, var_dim, cla_en, cla_dim);
         state = sat_bool::Undef;
     }
     assignment* get_assignment() {
@@ -50,18 +51,23 @@ public:
     watch_list* get_watch_list() {
         return &twoatch;
     }
-    sat_bool solve();
+    bool solve();
+
+    sat_bool try_solve(int max_learnts, int max_conflicts);
+
     void set_state(sat_bool st);
 
     void do_stats();
 
     void do_total_stats();
 
+    void init();
+
 private:
 
     bool allAssigned();
 
-    int calc_reason(clause *conflict, clause *learnt, lit* asserting);
+    int calc_reason(weak_ptr<clause> conflict, vector<lit> & learnt, lit* asserting);
 
     void reset_times();
 
