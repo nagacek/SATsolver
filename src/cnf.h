@@ -33,7 +33,7 @@ public:
 
     void reverse_last();
 
-    int occurrences(int var);
+    void occurrences(vector<int> &vector);
 
     void init_watches(watch_list *twoatch);
 };

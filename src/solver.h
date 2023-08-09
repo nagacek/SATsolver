@@ -23,6 +23,7 @@ class solver {
     double prop_time = 0;
     double reason_time = 0;
     double assert_time = 0;
+    double prune_time = 0;
     double all_time = 0;
     double conf_no = 0;
     double conf_no_total = 0;
@@ -30,6 +31,7 @@ class solver {
     double prop_time_total = 0;
     double reason_time_total = 0;
     double assert_time_total = 0;
+    double prune_time_total = 0;
     double all_time_total = 0;
 
 public:

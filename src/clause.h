@@ -40,7 +40,7 @@ public:
 
     sat_bool init(assignment *assgn);
 
-    int occurrences(int var);
+    void occurrences(vector<int> &vector);
 
     std::string to_string(bool show_watches);
 };
