@@ -36,6 +36,7 @@ sat_bool solver::try_solve(int max_learnts, int max_conflicts) {
         if (!conflict.expired()) {
             if (logger::cond_log(logger::INFO)) {
                 conf_no++;
+                conf_no_total++;
             }
             if (assgn.get_level() == 0) {
                 return sat_bool::False;
@@ -222,7 +223,7 @@ void solver::do_total_stats()  {
         logger::log(logger::ENHANCE, "Variable heuristic time: " + to_string(assert_time_total/1000) + "s");
         logger::log(logger::ENHANCE, "Pruning time: " + to_string(prune_time_total/1000) + "s");
         logger::log(logger::ENHANCE, "Remaining time: " + to_string((all_time_total - assert_time_total - prop_time_total - reason_time_total - prune_time_total)/1000) + "s");
-        logger::log(logger::ENHANCE, "No. of conflicts: " + to_string(conf_no));
+        logger::log(logger::ENHANCE, "No. of conflicts: " + to_string(conf_no_total));
         logger::log(logger::ENHANCE, "No. of learnt clauses: " + to_string(learnt_no));
     }
 }
