@@ -7,7 +7,7 @@
 bool solver::solve() {
     init();
     double learnts = (int)(cnf_val.get_clause_num() / 4);
-    double conf = (int)(cnf_val.get_clause_num() / 3);
+    double conf = 100;
     sat_bool status = sat_bool::Undef;
     while (status == sat_bool::Undef) {
         status = try_solve((int)learnts, (int)conf);
@@ -86,8 +86,14 @@ sat_bool solver::try_solve(int max_learnts, int max_conflicts) {
                 return sat_bool::Undef;
             }
 
+            auto t7_1 = std::chrono::high_resolution_clock::now();
             if (cnf_val.get_learnt_num() - assgn.get_assgn_num() > max_learnts) {
                 cnf_val.prune_clauses(&prio, &twoatch);
+            }
+            auto t8_1 = std::chrono::high_resolution_clock::now();
+            if (logger::cond_log(logger::INFO)) {
+                prune_time += ((std::chrono::duration<double, std::milli>) (t8_1 - t7_1)).count();
+                prune_time_total += ((std::chrono::duration<double, std::milli>) (t8_1 - t7_1)).count();
             }
 
             auto t7 = std::chrono::high_resolution_clock::now();
@@ -114,6 +120,7 @@ void solver::init() {
     logger::log(logger::INFO, "Initializing");
     cnf_val.init_watches(&twoatch);
     prio.init(assgn.get_var_num());
+    prio.occurrence_count(&cnf_val);
     auto t0_1 = std::chrono::high_resolution_clock::now();
 
     if (logger::cond_log(logger::INFO)) {
@@ -198,9 +205,10 @@ void solver::do_stats()  {
         logger::log(logger::ENHANCE, "Propagation time: " + to_string(prop_time/1000) + "s");
         logger::log(logger::ENHANCE, "Reason-calculation time: " + to_string(reason_time/1000) + "s");
         logger::log(logger::ENHANCE, "Variable heuristic time: " + to_string(assert_time/1000) + "s");
-        logger::log(logger::ENHANCE, "Remaining time: " + to_string((all_time - assert_time - prop_time - reason_time)/1000) + "s");
+        logger::log(logger::ENHANCE, "Pruning time: " + to_string(prune_time/1000) + "s");
+        logger::log(logger::ENHANCE, "Remaining time: " + to_string((all_time - assert_time - prop_time - reason_time - prune_time)/1000) + "s");
         logger::log(logger::ENHANCE, "No. of conflicts: " + to_string(conf_no));
-        logger::log(logger::ENHANCE, "No. of learnt clauses: " + to_string(learnt_no));
+        logger::log(logger::ENHANCE, "No. of learnt clauses: " + to_string(cnf_val.get_learnt_num()));
 
         reset_times();
     }
@@ -212,7 +220,8 @@ void solver::do_total_stats()  {
         logger::log(logger::ENHANCE, "Propagation time: " + to_string(prop_time_total/1000) + "s");
         logger::log(logger::ENHANCE, "Reason-calculation time: " + to_string(reason_time_total/1000) + "s");
         logger::log(logger::ENHANCE, "Variable heuristic time: " + to_string(assert_time_total/1000) + "s");
-        logger::log(logger::ENHANCE, "Remaining time: " + to_string((all_time_total - assert_time_total - prop_time_total - reason_time_total)/1000) + "s");
+        logger::log(logger::ENHANCE, "Pruning time: " + to_string(prune_time_total/1000) + "s");
+        logger::log(logger::ENHANCE, "Remaining time: " + to_string((all_time_total - assert_time_total - prop_time_total - reason_time_total - prune_time_total)/1000) + "s");
         logger::log(logger::ENHANCE, "No. of conflicts: " + to_string(conf_no));
         logger::log(logger::ENHANCE, "No. of learnt clauses: " + to_string(learnt_no));
     }

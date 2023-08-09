@@ -28,14 +28,10 @@ void cnf::reverse_last() {
     clause_num--;
 }
 
-int cnf::occurrences(int var) {
-    int ret_val = 0;
-
+void cnf::occurrences(vector<int> &vector) {
     for (shared_ptr<clause> & cl : clauses) {
-        ret_val += cl->occurrences(var);
+        cl->occurrences(vector);
     }
-
-    return ret_val;
 }
 
 int cnf::find_learnt(weak_ptr<clause> conflict) {

@@ -8,6 +8,7 @@
 
 #include <vector>
 #include "lit.h"
+#include <ctime>
 
 class assignment;
 class cnf;
@@ -23,6 +24,8 @@ private:
     double clause_enhance;
     double clause_diminish;
 
+    std::vector<int> occurrences;
+
 public:
     priority() {
         variable_enhance = 0;
@@ -32,6 +35,7 @@ public:
         clause_prio = std::vector<double>();
         clause_enhance = 0;
         clause_diminish = 0;
+        std::srand(583);
     }
     explicit priority(double plus, double minus, double cla_plus, double cla_minus) {
         variable_enhance = plus;
@@ -41,6 +45,7 @@ public:
         clause_prio = std::vector<double>();
         clause_enhance = cla_plus;
         clause_diminish = cla_minus;
+        std::srand(583);
     }
 
     void init(int var_num);
@@ -64,6 +69,8 @@ public:
     double get_cla_thresh();
 
     void split(vector<double> &median_vec, int &i, int &j, double pivot_val);
+
+    void occurrence_count(cnf * cnf_val);
 };
 
 #include "assignment.h"

@@ -7,6 +7,7 @@
 
 void priority::init(int var_num) {
     prio.resize(var_num + 1);
+    occurrences.resize(var_num + 1);
 }
 
 lit priority::decide(assignment *assgn, cnf *cnf) {
@@ -25,7 +26,7 @@ lit priority::decide(assignment *assgn, cnf *cnf) {
         exit(-1);
     }
 
-    return {decided, cnf->occurrences(decided) < 0};
+    return {decided, occurrences[decided] < 0};
 }
 
 void priority::enhance(int var) {
@@ -34,7 +35,7 @@ void priority::enhance(int var) {
         for (auto &p : prio) {
             p *= 1e-100;
         }
-        variable_enhance *= 1e-100;
+        variable_enhance *= 1e-99;
     }
 }
 
@@ -44,10 +45,10 @@ void priority::cla_enhance(int num) {
     }
     clause_prio[num] += clause_enhance;
     if (clause_prio[num] > 1e100) {
-        for (auto &p : prio) {
+        for (auto &p : clause_prio) {
             p *= 1e-100;
         }
-        clause_enhance *= 1e-100;
+        clause_enhance *= 1e-99;
     }
 }
 
@@ -81,7 +82,7 @@ double priority::calc_median() {
             return median_vec[l];
         if (abs(r - target) <= target/10)
             return median_vec[r];
-        int pivot = ((int)(std::rand()) % (median_vec.size() - r)) + l;
+        int pivot = ((int)(std::rand()) % (r - l)) + l;
         pivot_val = median_vec[pivot];
     }
     return median_vec[r];
@@ -89,7 +90,7 @@ double priority::calc_median() {
 
 void priority::split(vector<double> &median_vec, int &i, int &j, double pivot_val) {
     do {
-        while (median_vec[i] < pivot_val)
+        while (median_vec[i] <= pivot_val && i < j)
             i++;
         while (median_vec[j] > pivot_val)
             j--;
@@ -113,4 +114,8 @@ double priority::get_cla_thresh() {
 
 void priority::new_cla() {
     clause_prio.push_back(clause_enhance);
+}
+
+void priority::occurrence_count(cnf * cnf_val) {
+    cnf_val->occurrences(occurrences);
 }

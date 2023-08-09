@@ -15,9 +15,6 @@ bool assignment::assign_and_enqueue(lit mk_true, shared_ptr<clause> reason) {
         return true;
     } else {
         if (logger::cond_log(logger::DEBUG) && !reason) {
-            if (mk_true.get_var() == 647) {
-                int i = 5;
-            }
             logger::log(logger::DEBUG, "Literal " + mk_true.to_string() + " is assigned");
         } else {
             logger::log(logger::DEBUG_VERBOSE,

@@ -36,7 +36,7 @@ public:
 
     void reverse_last();
 
-    int occurrences(int var);
+    void occurrences(vector<int> &vector);
 
     int find_learnt(weak_ptr<clause> conflict);
 

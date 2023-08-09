@@ -38,9 +38,7 @@ namespace parser {
                 if (value == 0) {
                     new_clause = true;
                     clause_ptr = cnf_val->add_clause(clause_lits);
-                    int i = clause_ptr.use_count();
                     shared_ptr<clause> shared = clause_ptr.lock();
-                    i = clause_ptr.use_count();
                     sat_bool sat_value = shared->init(assgn);
                     clause_lits.clear();
                     if (sat_value != sat_bool::Undef) {

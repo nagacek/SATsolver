@@ -10,10 +10,6 @@
 bool clause::propagate(lit lit, watch_list *twoatch, assignment *assgn) {
     logger::log(logger::DEBUG_VERBOSE, lit.to_string() + " -prop-> " + this->to_string(true));
 
-    if (lit.get_var() == 134) {
-        int i = 5;
-    }
-
     if (lits[watch1] == lit.neg_copy()) {
         int changed_watch = watch1;
         watch1 = watch2;
@@ -139,14 +135,10 @@ void clause::calc_reason(lit of, vector<lit> *reason) {
     }
 }
 
-int clause::occurrences(int var) {
-    int ret_val = 0;
+void clause::occurrences(vector<int> &vector) {
     for (lit lit: lits) {
-        if (lit.get_var() == var) {
-            lit.is_neg() ? ret_val-- : ret_val++;
-        }
+        lit.is_neg() ? vector[lit.get_var()]-- : vector[lit.get_var()]++;
     }
-    return ret_val;
 }
 
 void clause::init_watch(watch_list *twoatch) {
