@@ -52,6 +52,8 @@ public:
 
     lit decide(assignment *assgn, cnf *cnf);
 
+    void save_phase(lit lit);
+
     void enhance(int var);
 
     void cla_enhance(int num);

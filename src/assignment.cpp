@@ -49,8 +49,9 @@ sat_bool assignment::apply(lit lit) {
     return lit.is_neg() ? !assgn.at(lit.get_var()) : assgn.at(lit.get_var());
 }
 
-void assignment::undo_last() {
+void assignment::undo_last(priority * prio) {
     lit lit = chrono_assgn.back();
+    prio->save_phase(lit);
     chrono_assgn.pop_back();
     int var = (int) lit.get_var();
     assgn[var] = sat_bool::Undef;
@@ -62,7 +63,7 @@ void assignment::undo_last() {
     }
 }
 
-void assignment::undo_until(int level) {
+void assignment::undo_until(int level, priority * prio) {
     logger::log(logger::DEBUG, "Undo until level " + to_string(level));
     int i = (int) chrono_assgn.size();
     int until = level_sep[level];
@@ -70,14 +71,14 @@ void assignment::undo_until(int level) {
         std::string log_val = "-undo-> ";
         for (; i > until; i--) {
             log_val += chrono_assgn.back().to_string() + ", ";
-            undo_last();
+            undo_last(prio);
         }
         log_val.pop_back();
         log_val.pop_back();
         logger::log(logger::DEBUG_VERBOSE, log_val);
     } else {
         for (; i > until; i--) {
-            undo_last();
+            undo_last(prio);
         }
     }
 }

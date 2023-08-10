@@ -53,7 +53,7 @@ sat_bool solver::try_solve(int max_learnts, int max_conflicts) {
                 reason_time_total += ((std::chrono::duration<double, std::milli>) (t4 - t3)).count();
             }
 
-            assgn.undo_until(backtrack_level);
+            assgn.undo_until(backtrack_level, &prio);
             weak_ptr<clause> learnt_clause = cnf_val.add_learnt_clause(learnt_lits, &prio);
             sat_bool value = learnt_clause.lock()->init_learnt(asserting, &assgn, &prio, &twoatch);
 
@@ -83,7 +83,7 @@ sat_bool solver::try_solve(int max_learnts, int max_conflicts) {
             }
             if (conf_no > max_conflicts) {
                 conf_no = 0;
-                assgn.undo_until(0);
+                assgn.undo_until(0, &prio);
                 return sat_bool::Undef;
             }
 
@@ -176,7 +176,7 @@ int solver::calc_reason(weak_ptr<clause> conflict, vector<lit> & learnt, lit *as
         do {
             expansion = assgn.get_last_assign();
             conflict = assgn.get_reason(expansion);
-            assgn.undo_last();
+            assgn.undo_last(&prio);
         } while (!lits_seen[expansion.get_var()]);
         counter--;
     } while (counter > 0);
