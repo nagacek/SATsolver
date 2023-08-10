@@ -119,3 +119,7 @@ void priority::new_cla() {
 void priority::occurrence_count(cnf * cnf_val) {
     cnf_val->occurrences(occurrences);
 }
+
+void priority::save_phase(lit lit) {
+    occurrences[lit.get_var()] = lit.is_neg() ? -1 : 1;
+}

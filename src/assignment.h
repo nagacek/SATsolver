@@ -37,9 +37,9 @@ public:
 
     sat_bool apply(lit lit);
 
-    void undo_last();
+    void undo_last(priority * prio);
 
-    void undo_until(int level);
+    void undo_until(int level, priority * prio);
 
     void new_decision_level();
 
