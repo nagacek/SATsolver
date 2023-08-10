@@ -5,10 +5,10 @@
 #include "solver.h"
 
 bool solver::solve() {
-    init();
+    sat_bool status = sat_bool::Undef;
+    status = init();
     double learnts = (int)(cnf_val.get_clause_num() / 4);
     double conf = 100;
-    sat_bool status = sat_bool::Undef;
     while (status == sat_bool::Undef) {
         status = try_solve((int)learnts, (int)conf);
         learnts *= 1.1;
@@ -116,9 +116,12 @@ sat_bool solver::try_solve(int max_learnts, int max_conflicts) {
     }
 }
 
-void solver::init() {
+sat_bool solver::init() {
     auto t0_0 = std::chrono::high_resolution_clock::now();
     logger::log(logger::INFO, "Initializing");
+    if (cnf_val.init(&assgn) == sat_bool::False) {
+        return sat_bool::False;
+    }
     cnf_val.init_watches(&twoatch);
     prio.init(assgn.get_var_num());
     prio.occurrence_count(&cnf_val);
@@ -128,6 +131,7 @@ void solver::init() {
         all_time += ((std::chrono::duration<double, std::milli>) (t0_1 - t0_0)).count();
         all_time_total += ((std::chrono::duration<double, std::milli>) (t0_1 - t0_0)).count();
     }
+    return sat_bool::Undef;
 }
 
 bool solver::allAssigned() {

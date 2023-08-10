@@ -42,6 +42,8 @@ public:
 
     int get_learnt_num();
 
+    sat_bool init(assignment * assgn);
+
     void init_watches(watch_list *twoatch);
 
     void prune_clauses(priority *prio, watch_list *twoatch);

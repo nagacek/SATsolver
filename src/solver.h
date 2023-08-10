@@ -63,7 +63,7 @@ public:
 
     void do_total_stats();
 
-    void init();
+    sat_bool init();
 
 private:
 

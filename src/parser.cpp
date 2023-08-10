@@ -22,7 +22,7 @@ namespace parser {
         return var_num;
     }
 
-    sat_bool parse_clauses(ifstream &stream, cnf *cnf_val, assignment *assgn) {
+    sat_bool parse_clauses(ifstream &stream, cnf *cnf_val) {
         std::string line;
         std::string word;
         bool new_clause = false;
@@ -37,16 +37,8 @@ namespace parser {
                 int value = wtoi(word);
                 if (value == 0) {
                     new_clause = true;
-                    clause_ptr = cnf_val->add_clause(clause_lits);
-                    shared_ptr<clause> shared = clause_ptr.lock();
-                    sat_bool sat_value = shared->init(assgn);
+                    cnf_val->add_clause(clause_lits);
                     clause_lits.clear();
-                    if (sat_value != sat_bool::Undef) {
-                        if (sat_value == sat_bool::False) {
-                            return sat_bool::False;
-                        }
-                        cnf_val->reverse_last();
-                    }
                     continue;
                 }
                 lit new_lit = lit(value);
@@ -108,9 +100,7 @@ namespace parser {
 
         parse_first(skip_comments(source), assgn, cnf_val, s.get_watch_list());
 
-        if (parse_clauses(source, cnf_val, assgn) == sat_bool::False) {
-            s.set_state(sat_bool::False);
-        }
+        parse_clauses(source, cnf_val);
         return cnf_file;
     }
 

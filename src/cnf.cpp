@@ -75,3 +75,18 @@ void cnf::prune_clauses(priority *prio, watch_list *twoatch) {
         }
     }
 }
+
+sat_bool cnf::init(assignment * assgn) {
+    for (auto it = clauses.begin(); it != clauses.end();) {
+        sat_bool sat_value = (*it)->init(assgn);
+        if (sat_value != sat_bool::Undef) {
+            if (sat_value == sat_bool::False) {
+                return sat_bool::False;
+            }
+            it = clauses.erase(it);
+            continue;
+        }
+        it++;
+    }
+    return sat_bool::Undef;
+}
