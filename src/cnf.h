@@ -2,6 +2,7 @@
 // Created by natalia on 31.05.23.
 //
 #include "clause.h"
+#include "priority.h"
 #include "exceptions/sat_exception.h"
 #include <vector>
 #include<deque>
@@ -25,9 +26,11 @@ public:
 
     weak_ptr<clause> add_clause(const std::vector<lit> & lits);
 
-    weak_ptr<clause> add_learnt_clause(const std::vector<lit> & lits);
+    weak_ptr<clause> add_learnt_clause(const std::vector<lit> & lits, priority * prio);
 
     void set_clause_num(int num);
+
+    int get_clause_num();
 
     void reverse_last_learnt();
 
@@ -35,7 +38,15 @@ public:
 
     void occurrences(vector<int> &vector);
 
+    int find_learnt(weak_ptr<clause> conflict);
+
+    int get_learnt_num();
+
+    sat_bool init(assignment * assgn);
+
     void init_watches(watch_list *twoatch);
+
+    void prune_clauses(priority *prio, watch_list *twoatch);
 };
 
 
