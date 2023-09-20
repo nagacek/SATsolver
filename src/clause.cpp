@@ -55,30 +55,23 @@ bool clause::swap_watch2(watch_list *twoatch, assignment *assgn) {
 }
 
 sat_bool clause::init(assignment *assgn) {
-    vector<sat_bool> duplicates = vector<sat_bool>(assgn->get_lit_num());
-    std::fill(duplicates.begin(), duplicates.end(), sat_bool::Undef);
+    vector<int> duplicates = vector<int>();
+    duplicates.reserve(lits.size());
 
-    for (lit lit: lits) {
-        sat_bool value = assgn->apply(lit);
+    for (auto it = lits.begin(); it != lits.end();) {
+        sat_bool value = assgn->apply(*it);
         if (value == sat_bool::True) {
             return sat_bool::True;
-        } else if (value == sat_bool::False) {
-            duplicates[lit.get_id()] = sat_bool::False;
+        } else if (std::find(duplicates.begin(), duplicates.end(), (int)(*it).get_id()) != duplicates.end()) {
+            it = lits.erase(it);
         } else {
-            duplicates[lit.get_id()] = sat_bool::True;
+            duplicates.emplace_back((*it).get_id());
+            it++;
         }
-        if (duplicates[lit.get_nid()] != sat_bool::Undef) {
+        if (std::find(duplicates.begin(), duplicates.end(), (int)(*it).get_nid()) != duplicates.end()) {
             return sat_bool::True;
         }
-    }
 
-    for (int i = 1; i < duplicates.size(); i++) {
-        if (duplicates[i] == sat_bool::True) {
-            lits.erase(unique(lits.begin(), lits.end()), lits.end());
-        }
-        if (duplicates[i] == sat_bool::False) {
-            lits.erase(std::remove(lits.begin(), lits.end(), lit((int) i / 2, i % 2)), lits.end());
-        }
     }
 
     if (lits.empty()) {
