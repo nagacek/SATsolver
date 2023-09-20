@@ -20,6 +20,7 @@ namespace logger {
         INFO,
         WARNING,
         ENHANCE,
+        DEBUG_CONFLICT,
         DEBUG,
         DEBUG_VERBOSE,
         DEBUG_VERY_VERBOSE
@@ -33,6 +34,7 @@ namespace logger {
                     "INFO",
                     "WARNING",
                     "ENHANCE",
+                    "DEBUG_CONFLICT",
                     "DEBUG",
                     "DEBUG_VERBOSE",
                     "DEBUG_VERY_VERBOSE"

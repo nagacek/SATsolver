@@ -9,7 +9,7 @@ bool assignment::assign_and_enqueue(lit mk_true, shared_ptr<clause> reason) {
     int var = (int) mk_true.get_var();
     if (assgn[var] != sat_bool::Undef) {
         if (apply(mk_true) == sat_bool::False) {
-            log(logger::type::DEBUG, "Literal " + mk_true.to_string() + " has produced a conflict.");
+            log(logger::type::DEBUG_CONFLICT, "Literal " + mk_true.to_string() + " has produced a conflict.");
             return false;
         }
         return true;
@@ -64,7 +64,7 @@ void assignment::undo_last(priority * prio) {
 }
 
 void assignment::undo_until(int level, priority * prio) {
-    logger::log(logger::DEBUG, "Undo until level " + to_string(level));
+    logger::log(logger::DEBUG_CONFLICT, "Undo until level " + to_string(level));
     int i = (int) chrono_assgn.size();
     int until = level_sep[level];
     if (logger::cond_log(logger::DEBUG_VERBOSE)) {

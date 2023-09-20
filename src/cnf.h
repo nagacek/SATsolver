@@ -42,7 +42,7 @@ public:
 
     int get_learnt_num();
 
-    sat_bool init(assignment * assgn);
+    sat_bool init(assignment * assgn, double learnts);
 
     void init_watches(watch_list *twoatch);
 

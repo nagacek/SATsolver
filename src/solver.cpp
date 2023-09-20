@@ -6,9 +6,9 @@
 
 bool solver::solve() {
     sat_bool status = sat_bool::Undef;
-    status = init();
-    double learnts = (int)(cnf_val.get_clause_num() / 4);
+    double learnts = (long)(cnf_val.get_clause_num() / 4);
     double conf = 100;
+    status = init((long)learnts);
     while (status == sat_bool::Undef) {
         status = try_solve((int)learnts, (int)conf);
         learnts *= 1.1;
@@ -116,16 +116,17 @@ sat_bool solver::try_solve(int max_learnts, int max_conflicts) {
     }
 }
 
-sat_bool solver::init() {
+sat_bool solver::init(long learnts) {
     auto t0_0 = std::chrono::high_resolution_clock::now();
     logger::log(logger::INFO, "Initializing");
-    if (cnf_val.init(&assgn) == sat_bool::False) {
+    if (cnf_val.init(&assgn, learnts) == sat_bool::False) {
         return sat_bool::False;
     }
     cnf_val.init_watches(&twoatch);
     prio.init(assgn.get_var_num());
     prio.occurrence_count(&cnf_val);
     auto t0_1 = std::chrono::high_resolution_clock::now();
+    logger::log(logger::ENHANCE, "Initializing finished ("+ to_string(((std::chrono::duration<double, std::milli>)(t0_1 - t0_0)).count()) + "ms)");
 
     if (logger::cond_log(logger::INFO)) {
         all_time += ((std::chrono::duration<double, std::milli>) (t0_1 - t0_0)).count();
@@ -202,6 +203,7 @@ void solver::reset_times() {
     reason_time = 0;
     assert_time = 0;
     all_time = 0;
+    prune_time = 0;
 }
 
 void solver::do_stats()  {
