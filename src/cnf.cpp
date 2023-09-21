@@ -91,3 +91,12 @@ sat_bool cnf::init(assignment * assgn, double learnts) {
     }
     return sat_bool::Undef;
 }
+
+void cnf::find_binary_clauses(vector<weak_ptr<clause>>& list) {
+    for (auto it = clauses.begin(); it != clauses.end(); it++) {
+        shared_ptr<clause> curr = (*it);
+        if (curr->get_size() == 2) {
+            (&list)->push_back(curr);
+        }
+    }
+}

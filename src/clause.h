@@ -46,6 +46,10 @@ public:
     void cancel_watches(watch_list *twoatch);
 
     bool is_learnt();
+
+    int get_size();
+
+    lit get_binary(bool first);
 };
 #include "assignment.h"
 #include "priority.h"

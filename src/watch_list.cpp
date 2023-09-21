@@ -16,8 +16,11 @@ void watch_list::undo(lit lit) {
 weak_ptr<clause> watch_list::propagate(lit lit, assignment *assgn) {
     logger::log(logger::DEBUG_VERBOSE, lit.to_string() + " is propagated");
 
-    vector<weak_ptr<clause>> temp_list = list[lit.get_id()]; //??
-    undo(lit);
+    vector<weak_ptr<clause>> temp_list{};
+    //temp_list = std::move(list[lit.get_id()]); //??
+    //temp_list = list[lit.get_id()];
+    std::swap(list[lit.get_id()], temp_list);
+    //undo(lit);
     for (int i = 0; i < temp_list.size(); i++) {
         if (!temp_list[i].expired()) {
             auto locked = temp_list[i].lock();

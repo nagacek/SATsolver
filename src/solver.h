@@ -33,6 +33,7 @@ class solver {
     double assert_time_total = 0;
     double prune_time_total = 0;
     double all_time_total = 0;
+    double restarts = 0;
 
 public:
 
@@ -64,6 +65,8 @@ public:
     void do_total_stats();
 
     sat_bool init(long learnts);
+
+    void preprocess();
 
 private:
 
