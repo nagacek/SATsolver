@@ -4,7 +4,6 @@
 #include <memory>
 #include <vector>
 #include "lit.h"
-#include <memory>
 
 #ifndef SATSOLVER_CLAUSE_H
 #define SATSOLVER_CLAUSE_H
@@ -43,6 +42,14 @@ public:
     void occurrences(vector<int> &vector);
 
     std::string to_string(bool show_watches);
+
+    void cancel_watches(watch_list *twoatch);
+
+    bool is_learnt();
+
+    int get_size();
+
+    lit get_binary(bool first);
 };
 #include "assignment.h"
 #include "priority.h"

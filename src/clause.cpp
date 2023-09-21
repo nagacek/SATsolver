@@ -172,3 +172,15 @@ std::string clause::to_string(bool show_watches) {
 bool clause::is_learnt() {
     return learnt;
 }
+
+int clause::get_size() {
+    return (int) lits.size();
+}
+
+lit clause::get_binary(bool first) {
+    if (lits.size() != 2) {
+        return lit{0, false};
+    }
+
+    return first ? lits[0] : lits[1];
+}

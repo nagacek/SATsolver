@@ -2,13 +2,18 @@
 // Created by natalia on 31.05.23.
 //
 
+#include <unordered_map>
+#include <map>
+#include <stack>
 #include "solver.h"
+#include "graph.h"
 
 bool solver::solve() {
     sat_bool status = sat_bool::Undef;
     double learnts = (long)(cnf_val.get_clause_num() / 4);
     double conf = 100;
     status = init((long)learnts);
+    logger::log(logger::INFO, "Solving");
     while (status == sat_bool::Undef) {
         status = try_solve((int)learnts, (int)conf);
         learnts *= 1.1;
@@ -18,7 +23,6 @@ bool solver::solve() {
 }
 
 sat_bool solver::try_solve(int max_learnts, int max_conflicts) {
-    logger::log(logger::INFO, "Solving");
     if (state == sat_bool::False) {
         return sat_bool::False;
     }
@@ -82,8 +86,10 @@ sat_bool solver::try_solve(int max_learnts, int max_conflicts) {
                 return sat_bool::True;
             }
             if (conf_no > max_conflicts) {
+                logger::log(logger::ENHANCE, "Restarting");
                 conf_no = 0;
                 assgn.undo_until(0, &prio);
+                restarts++;
                 return sat_bool::Undef;
             }
 
@@ -196,6 +202,23 @@ void solver::set_state(sat_bool st) {
     state = st;
 }
 
+// ######## preprocessing ########
+
+void solver::preprocess() {
+    vector<weak_ptr<clause>> binary{};
+    cnf_val.find_binary_clauses(binary);
+
+    logger::log(logger::ENHANCE, "No. of binary clauses: " + to_string(binary.size()));
+
+    graph g;
+    for (auto &b : binary) {
+        g.add_clause(b);
+    }
+    vector<vector<lit>> sccs = g.find_sccs();
+
+    logger::log(logger::ENHANCE, "No. of SCCs: " + to_string(sccs.size()));
+}
+
 // ######## stats #########
 
 void solver::reset_times() {
@@ -222,15 +245,16 @@ void solver::do_stats()  {
 }
 
 void solver::do_total_stats()  {
-    if (logger::cond_log(logger::ENHANCE)) {
-        logger::log(logger::ENHANCE, "##########################");
-        logger::log(logger::ENHANCE, "Propagation time: " + to_string(prop_time_total/1000) + "s");
-        logger::log(logger::ENHANCE, "Reason-calculation time: " + to_string(reason_time_total/1000) + "s");
-        logger::log(logger::ENHANCE, "Variable heuristic time: " + to_string(assert_time_total/1000) + "s");
-        logger::log(logger::ENHANCE, "Pruning time: " + to_string(prune_time_total/1000) + "s");
-        logger::log(logger::ENHANCE, "Remaining time: " + to_string((all_time_total - assert_time_total - prop_time_total - reason_time_total - prune_time_total)/1000) + "s");
-        logger::log(logger::ENHANCE, "No. of conflicts: " + to_string(conf_no_total));
-        logger::log(logger::ENHANCE, "No. of learnt clauses: " + to_string(learnt_no));
+    if (logger::cond_log(logger::INFO)) {
+        logger::log(logger::INFO, "##########################");
+        logger::log(logger::INFO, "Propagation time: " + to_string(prop_time_total/1000) + "s");
+        logger::log(logger::INFO, "Reason-calculation time: " + to_string(reason_time_total/1000) + "s");
+        logger::log(logger::INFO, "Variable heuristic time: " + to_string(assert_time_total/1000) + "s");
+        logger::log(logger::INFO, "Pruning time: " + to_string(prune_time_total/1000) + "s");
+        logger::log(logger::INFO, "Remaining time: " + to_string((all_time_total - assert_time_total - prop_time_total - reason_time_total - prune_time_total)/1000) + "s");
+        logger::log(logger::INFO, "No. of conflicts: " + to_string(conf_no_total));
+        logger::log(logger::INFO, "No. of learnt clauses: " + to_string(learnt_no));
+        logger::log(logger::INFO, "No. of restarts: " + to_string(restarts));
     }
 }
 

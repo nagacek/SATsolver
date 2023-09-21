@@ -34,13 +34,16 @@ public:
         id = 2 * var - (is_negative ? 1 : 0);
         nid = id == 0 ? 0 : 2 * var - (is_negative ? 0 : 1);
     }
-    unsigned get_id() { return id; }
     unsigned get_nid() { return nid; }
     unsigned get_var() { return var; }
     bool is_neg() { return is_negative; }
     lit copy() { return {var, is_negative}; }
     lit neg_copy() { return {var, !is_negative}; }
-    bool operator==(lit b){ return get_id() == b.get_id(); }
+    bool operator ==(lit b){ return get_id() == b.get_id(); }
+    bool operator <(lit b) { return get_id() < b.get_id(); }
+
+    unsigned get_id() const { return id; }
+    bool operator <(const lit& b) const { return get_id() < b.get_id(); }
 
     std::string to_string() {
         return std::string((is_neg() ? "¬" : "")).append("[").append(
