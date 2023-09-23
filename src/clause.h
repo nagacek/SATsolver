@@ -33,6 +33,10 @@ public:
 
     void init_watch(watch_list *twoatch);
 
+    void init_occurrences(watch_list * all_watches);
+
+    sat_bool simplify(lit lit, watch_list* twoatch, assignment* assgn);
+
     sat_bool init_learnt(lit watch, assignment* assgn, priority *prio, watch_list *twoatch);
 
     void calc_reason(lit of, vector<lit> *reason);
@@ -50,6 +54,8 @@ public:
     int get_size();
 
     lit get_binary(bool first);
+
+    vector<lit> get_lits();
 };
 #include "assignment.h"
 #include "priority.h"

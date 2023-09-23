@@ -45,8 +45,12 @@ weak_ptr<clause> assignment::propagate(watch_list *twoatch) {
     return {};
 }
 
-sat_bool assignment::apply(lit lit) {
-    return lit.is_neg() ? !assgn.at(lit.get_var()) : assgn.at(lit.get_var());
+sat_bool assignment::apply(lit lit1) {
+    lit repr = representants[lit1.get_var()];
+    if (!(repr == lit{})) {
+        return lit1.is_neg() ? !assgn.at(repr.get_id()) : assgn.at(repr.get_id());
+    }
+    return lit1.is_neg() ? !assgn.at(lit1.get_var()) : assgn.at(lit1.get_var());
 }
 
 void assignment::undo_last(priority * prio) {
@@ -116,6 +120,10 @@ void assignment::new_decision_level() {
 }
 
 sat_bool assignment::get_assignment(int var) {
+    lit repr = representants[var];
+    if (!(repr == lit{})) {
+        return assgn.at(repr.get_var());
+    }
     return assgn.at(var);
 }
 
@@ -124,6 +132,7 @@ void assignment::set_var_num(int num) {
         throw invalid_arg_exception(std::string("negative amount of variables"));
     var_num = num;
     assgn.resize(num + 1);
+    representants.resize(num + 1);
     assgn_levels.resize(num + 1);
     reasons.resize(num + 1);
     std::fill(assgn_levels.begin(), assgn_levels.end(), -1);
@@ -147,4 +156,8 @@ int assignment::get_lit_num() {
 
 int assignment::get_assgn_num() {
     return chrono_assgn.size();
+}
+
+void assignment::set_representant(lit eq, lit repr) {
+    representants[eq.get_id()] = repr;
 }

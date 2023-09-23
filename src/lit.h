@@ -24,7 +24,12 @@ public:
         nid = id == 0 ? 0 : 2 * var - (is_negative ? 0 : 1);
 
     }
-
+    lit() {
+        var = 0;
+        is_negative = false;
+        id = 0;
+        nid = 0;
+    }
     explicit lit(int variable) {
         if (variable == 0) {
             throw invalid_arg_exception(std::string("lit variable cannot have index 0"));

@@ -27,7 +27,7 @@ namespace parser {
         std::string word;
         bool new_clause = false;
         vector<lit> clause_lits;
-        weak_ptr<clause> clause_ptr;
+        //weak_ptr<clause> clause_ptr;
         while (std::getline(stream, line)) {
             std::istringstream line_stream(line);
             while (next_word(line_stream, word)) {

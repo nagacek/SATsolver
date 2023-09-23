@@ -59,6 +59,22 @@ void cnf::init_watches(watch_list *twoatch) {
     }
 }
 
+
+void cnf::init_all_watches(watch_list * all_watches) {
+    for (shared_ptr<clause> & cl : clauses) {
+        cl->init_occurrences(all_watches);
+    }
+}
+
+void cnf::delete_clause(weak_ptr<clause> to_delete) {
+    auto it = find(clauses.begin(), clauses.end(),  to_delete.lock());
+    if (it == clauses.end()) {
+        logger::log(logger::ERROR, "Clause to be deleted is not there");
+        exit(-1);
+    }
+    clauses.erase(it);
+}
+
 void cnf::prune_clauses(priority *prio, watch_list *twoatch) {
     double median = prio->calc_median();
     double threshold = prio->get_cla_thresh();
@@ -85,6 +101,7 @@ sat_bool cnf::init(assignment * assgn, double learnts) {
                 return sat_bool::False;
             }
             it = clauses.erase(it);
+            clause_num--;
             continue;
         }
         it++;
