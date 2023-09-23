@@ -46,7 +46,11 @@ public:
 
     void init_watches(watch_list *twoatch);
 
+    void init_all_watches(watch_list * all_watches);
+
     void prune_clauses(priority *prio, watch_list *twoatch);
+
+    void delete_clause(weak_ptr<clause> to_delete);
 
     void find_binary_clauses(vector<weak_ptr<clause>>& list);
 };

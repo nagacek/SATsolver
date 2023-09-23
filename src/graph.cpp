@@ -18,12 +18,17 @@ void graph::add_clause(weak_ptr<clause> &cl) {
 }
 
 void graph::add_edge(lit lit1, lit lit2) {
-    if (edges.find(lit1) == edges.end()) {
-        edges.emplace(lit1, vector<lit>());
+    if (out_edges.find(lit1) == out_edges.end()) {
+        out_edges.emplace(lit1, vector<lit>());
         vertices.insert(lit1);
     }
-    edges.find(lit1)->second.push_back(lit2);
-    vertices.insert(lit2);
+    out_edges.find(lit1)->second.push_back(lit2);
+
+    if (in_edges.find(lit2) == in_edges.end()) {
+        in_edges.emplace(lit2, vector<lit>());
+        vertices.insert(lit2);
+    }
+    in_edges.find(lit2)->second.push_back(lit1);
 }
 
 vector<vector<lit>> graph::find_sccs() {
@@ -57,7 +62,7 @@ void graph::tarjan(lit l0) {
     on_stack[ids[l0]] = true;
     unvisited.erase(l0);
 
-    for (auto &l : edges[l0]) {
+    for (auto &l : out_edges[l0]) {
         if (unvisited.find(l) != unvisited.end()) {
             tarjan(l);
             lows[l0] =  min(lows[l0], lows[l]);
@@ -79,4 +84,14 @@ void graph::tarjan(lit l0) {
             result.push_back(scc);
         }
     }
+}
+
+set<lit> graph::find_roots() {
+    set<lit> roots{};
+    for (auto &it : vertices) {
+        if (in_edges.find(it) == in_edges.end()) {
+            roots.insert(it);
+        }
+    }
+    return roots;
 }

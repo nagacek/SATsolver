@@ -15,7 +15,8 @@
 class graph {
 private:
     set<lit> vertices;
-    map<lit, vector<lit>> edges;
+    map<lit, vector<lit>> out_edges;
+    map<lit, vector<lit>> in_edges;
 
     // for tarjan
     int maxdf;
@@ -34,6 +35,8 @@ public:
     void add_clause(weak_ptr<clause> &cl);
 
     vector<vector<lit>> find_sccs();
+
+    set<lit> find_roots();
 };
 
 

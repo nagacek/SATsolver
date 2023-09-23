@@ -22,16 +22,6 @@ int main(int argc, char **argv) {
         logger::log(logger::INFO, "Parsing finished");
     }
 
-    solver.preprocess();
-
-    auto t3 = std::chrono::high_resolution_clock::now();
-    if (logger::cond_log(logger::ENHANCE)) {
-        logger::log(logger::ENHANCE,
-                    "Preprocessing finished (" + to_string(((duration<double, std::milli>) (t3 - t2)).count()) + "ms)");
-    } else {
-        logger::log(logger::INFO, "Preprocessing finished");
-    }
-
     if (solver.solve()) {
         log_stdout(logger::type::FINISHED, "SATISFIABLE");
         parser::unparse(solver.get_assignment(), cnf_file);

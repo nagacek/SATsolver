@@ -7,12 +7,16 @@
 #include <stack>
 #include "solver.h"
 #include "graph.h"
+#include "occ_list.h"
 
 bool solver::solve() {
     sat_bool status = sat_bool::Undef;
     double learnts = (long)(cnf_val.get_clause_num() / 4);
     double conf = 100;
     status = init((long)learnts);
+    if (status == sat_bool::Undef) {
+        status = preprocess();
+    }
     logger::log(logger::INFO, "Solving");
     while (status == sat_bool::Undef) {
         status = try_solve((int)learnts, (int)conf);
@@ -203,20 +207,95 @@ void solver::set_state(sat_bool st) {
 }
 
 // ######## preprocessing ########
+// TODO: Iterations/Preprocessing order and Unhide, stats
+sat_bool solver::preprocess() {
+    auto t2 = std::chrono::high_resolution_clock::now();
 
-void solver::preprocess() {
+    // occurrence list for preprocessing
+    occ_list occ_list{&cnf_val};
+    occ_list.init(assgn.get_var_num());
+    cnf_val.init_watches(&occ_list);
+
     vector<weak_ptr<clause>> binary{};
     cnf_val.find_binary_clauses(binary);
+    graph g;
+    for (auto &b : binary) {
+        if (!b.expired()) {
+            g.add_clause(b);
+        }
+    }
+
+    // pure literal
+    occ_list.propagate_pure_literal(assgn);
+
+    // update binary list
+    auto new_binaries = occ_list.poll_new_binary();
+    for (auto &b : new_binaries) {
+        if (!b.expired()) {
+            g.add_clause(b);
+        }
+    }
 
     logger::log(logger::ENHANCE, "No. of binary clauses: " + to_string(binary.size()));
 
-    graph g;
-    for (auto &b : binary) {
-        g.add_clause(b);
+    // Propagation for simplification =>
+    // As there are no decisions, propagations do not have to be reversible.
+    // This results in permanent changes in the formula.
+    // If there are conflicts, they are on root level and the formula is unsat.
+    weak_ptr<clause> conflict = assgn.propagate(&occ_list);
+    if (!conflict.expired()) {
+        return sat_bool::False;
     }
-    vector<vector<lit>> sccs = g.find_sccs();
 
+    new_binaries = occ_list.poll_new_binary();
+    for (auto &b : new_binaries) {
+        if (!b.expired()) {
+            g.add_clause(b);
+        }
+    }
+    set<lit> roots = g.find_roots();
+    // unhiding here prob.
+    vector<vector<lit>> sccs = g.find_sccs();
+    for (auto &vec : sccs) {
+        sat_bool values = sat_bool::Undef;
+        lit repr{0, false};
+        for (auto l : vec) {
+            sat_bool curr_val = assgn.apply(l);
+            if (values == sat_bool::Undef) {
+                values = curr_val;
+                repr = l;
+            } else if (curr_val != sat_bool::Undef && values != curr_val) {
+                logger::log(logger::DEBUG, "Equivalent Literals did not have the same assigned value");
+                return sat_bool::False;
+            }
+        }
+        for (auto l : vec) {
+            if (l == repr) {
+                continue;
+            }
+            assgn.set_representant(l, repr);
+            if (occ_list.substitute(l, repr, &assgn) == sat_bool::False) {
+                return sat_bool::False;
+            }
+        }
+    }
+
+    conflict = assgn.propagate(&occ_list);
+    if (!conflict.expired()) {
+        return sat_bool::False;
+    }
+
+    // ######## stats ########
     logger::log(logger::ENHANCE, "No. of SCCs: " + to_string(sccs.size()));
+    auto t3 = std::chrono::high_resolution_clock::now();
+    if (logger::cond_log(logger::ENHANCE)) {
+        logger::log(logger::ENHANCE,
+                    "Preprocessing finished (" + to_string(((std::chrono::duration<double, std::milli>) (t3 - t2)).count()) + "ms)");
+    } else {
+        logger::log(logger::INFO, "Preprocessing finished");
+    }
+
+    return sat_bool::Undef;
 }
 
 // ######## stats #########

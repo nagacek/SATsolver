@@ -66,7 +66,7 @@ public:
 
     sat_bool init(long learnts);
 
-    void preprocess();
+    sat_bool preprocess();
 
 private:
 

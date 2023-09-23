@@ -139,6 +139,42 @@ void clause::init_watch(watch_list *twoatch) {
     twoatch->nadd_clause(lits[watch2], shared_from_this());
 }
 
+void clause::init_occurrences(watch_list * all_watches) {
+    for (auto &l : lits) {
+        all_watches->add_clause(l, shared_from_this());
+    }
+}
+
+sat_bool clause::simplify(lit lit, watch_list *twoatch, assignment *assgn) {
+    logger::log(logger::DEBUG_VERBOSE, lit.to_string() + " -simplify-> " + this->to_string(false));
+    sat_bool result = assgn->apply(lit);
+    if (result == sat_bool::True) {
+        return sat_bool::Undef;
+    } else if (result == sat_bool::False) {
+        auto it = std::find(lits.begin(), lits.end(), lit);
+        if (it == lits.end()) {
+            logger::log(logger::ERROR, "Lit to remove was not found.");
+            exit(-1);
+        }
+        lits.erase(it);
+        if (lits.size() == 2) {
+            twoatch->notify(shared_from_this());
+            return sat_bool::True;
+        }
+        if (lits.size() == 1) {
+            return assgn->assign_and_enqueue(lits[0]) ? sat_bool::Undef : sat_bool::False;
+        }
+        if (lits.empty()) {
+            return sat_bool::False;
+        }
+    } else {
+        logger::log(logger::ERROR, "Lit to simplify with is not set.");
+        exit(-1);
+    }
+    logger::log(logger::ERROR, "???");
+    return sat_bool::True;
+}
+
 void clause::cancel_watches(watch_list *twoatch) {
     if (!twoatch->nremove_clause(lits[watch1], shared_from_this())) {
         logger::log(logger::ERROR, "Watched clause " + this->to_string(true) + " could not be found in list for literal " + lits[watch1].neg_copy().to_string());
@@ -184,3 +220,9 @@ lit clause::get_binary(bool first) {
 
     return first ? lits[0] : lits[1];
 }
+
+vector<lit> clause::get_lits() {
+    return lits;
+}
+
+
