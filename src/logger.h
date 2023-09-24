@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <cstdio>
+#include <vector>
 #include "lit.h"
 
 namespace logger {
@@ -50,6 +51,7 @@ namespace logger {
     void start_parsing();
 
 
+    string vec_to_string(std::vector<lit> vec);
 };
 
 

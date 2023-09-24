@@ -132,7 +132,6 @@ sat_bool solver::init(long learnts) {
     if (cnf_val.init(&assgn, learnts) == sat_bool::False) {
         return sat_bool::False;
     }
-    cnf_val.init_watches(&twoatch);
     prio.init(assgn.get_var_num());
     prio.occurrence_count(&cnf_val);
     auto t0_1 = std::chrono::high_resolution_clock::now();
@@ -214,7 +213,7 @@ sat_bool solver::preprocess() {
     // occurrence list for preprocessing
     occ_list occ_list{&cnf_val};
     occ_list.init(assgn.get_var_num());
-    cnf_val.init_watches(&occ_list);
+    cnf_val.init_all_watches(&occ_list);
 
     vector<weak_ptr<clause>> binary{};
     cnf_val.find_binary_clauses(binary);
@@ -226,7 +225,15 @@ sat_bool solver::preprocess() {
     }
 
     // pure literal
+    weak_ptr<clause> conflict = assgn.propagate(&occ_list);
+    if (!conflict.expired()) {
+        return sat_bool::False;
+    }
     occ_list.propagate_pure_literal(assgn);
+    conflict = assgn.propagate(&occ_list);
+    if (!conflict.expired()) {
+        return sat_bool::False;
+    }
 
     // update binary list
     auto new_binaries = occ_list.poll_new_binary();
@@ -242,7 +249,7 @@ sat_bool solver::preprocess() {
     // As there are no decisions, propagations do not have to be reversible.
     // This results in permanent changes in the formula.
     // If there are conflicts, they are on root level and the formula is unsat.
-    weak_ptr<clause> conflict = assgn.propagate(&occ_list);
+    conflict = assgn.propagate(&occ_list);
     if (!conflict.expired()) {
         return sat_bool::False;
     }
@@ -255,11 +262,13 @@ sat_bool solver::preprocess() {
     }
     set<lit> roots = g.find_roots();
     // unhiding here prob.
-    vector<vector<lit>> sccs = g.find_sccs();
+    vector<vector<lit>> sccs {}; //= g.find_sccs();
+    logger::log(logger::ENHANCE, "No. of SCCs: " + to_string(sccs.size()));
     for (auto &vec : sccs) {
+        logger::log(logger::ENHANCE, "SCC: " + logger::vec_to_string(vec));
         sat_bool values = sat_bool::Undef;
         lit repr{0, false};
-        for (auto l : vec) {
+        for (auto &l : vec) {
             sat_bool curr_val = assgn.apply(l);
             if (values == sat_bool::Undef) {
                 values = curr_val;
@@ -270,12 +279,14 @@ sat_bool solver::preprocess() {
             }
         }
         for (auto l : vec) {
-            if (l == repr) {
-                continue;
-            }
-            assgn.set_representant(l, repr);
-            if (occ_list.substitute(l, repr, &assgn) == sat_bool::False) {
-                return sat_bool::False;
+            if (!assgn.has_representant(l)) {
+                assgn.set_representant(l, repr);
+                if (l == repr) {
+                    continue;
+                }
+                if (occ_list.substitute(l, repr, &assgn) == sat_bool::False) {
+                    return sat_bool::False;
+                }
             }
         }
     }
@@ -286,15 +297,11 @@ sat_bool solver::preprocess() {
     }
 
     // ######## stats ########
-    logger::log(logger::ENHANCE, "No. of SCCs: " + to_string(sccs.size()));
     auto t3 = std::chrono::high_resolution_clock::now();
-    if (logger::cond_log(logger::ENHANCE)) {
-        logger::log(logger::ENHANCE,
-                    "Preprocessing finished (" + to_string(((std::chrono::duration<double, std::milli>) (t3 - t2)).count()) + "ms)");
-    } else {
-        logger::log(logger::INFO, "Preprocessing finished");
-    }
+    logger::log(logger::INFO,"Preprocessing finished (" + to_string(((std::chrono::duration<double, std::milli>) (t3 - t2)).count()) + "ms)");
 
+    // Init two-watched lists only after all permanent changes are made
+    cnf_val.init_watches(&twoatch);
     return sat_bool::Undef;
 }
 
@@ -336,6 +343,3 @@ void solver::do_total_stats()  {
         logger::log(logger::INFO, "No. of restarts: " + to_string(restarts));
     }
 }
-
-
-
