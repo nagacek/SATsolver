@@ -47,8 +47,8 @@ bool clause::swap_watch2(watch_list *twoatch, assignment *assgn) {
             return true;
         }
     }
-    if (logger::cond_log(logger::type::DEBUG_VERBOSE) && (assgn->apply(lits[watch2]) != sat_bool::False)) {
-        logger::log(logger::type::DEBUG_VERBOSE,
+    if ((assgn->apply(lits[watch2]) != sat_bool::False)) {
+        logger::log(logger::type::ERROR,
                     "Somehow this variable is false and not false at the same time during propagation :(");
     }
     return false;
@@ -171,7 +171,6 @@ sat_bool clause::simplify(lit lit, watch_list *twoatch, assignment *assgn) {
         logger::log(logger::ERROR, "Lit to simplify with is not set.");
         exit(-1);
     }
-    logger::log(logger::ERROR, "???");
     return sat_bool::True;
 }
 

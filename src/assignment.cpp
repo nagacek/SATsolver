@@ -47,8 +47,8 @@ weak_ptr<clause> assignment::propagate(watch_list *twoatch) {
 
 sat_bool assignment::apply(lit lit1) {
     lit repr = representants[lit1.get_var()];
-    if (!(repr == lit{})) {
-        return lit1.is_neg() ? !assgn.at(repr.get_id()) : assgn.at(repr.get_id());
+    if (!(repr == lit{}) && repr.get_var() != lit1.get_var()) {
+        return lit1.is_neg() ? !apply(repr) : apply(repr);
     }
     return lit1.is_neg() ? !assgn.at(lit1.get_var()) : assgn.at(lit1.get_var());
 }
@@ -121,8 +121,8 @@ void assignment::new_decision_level() {
 
 sat_bool assignment::get_assignment(int var) {
     lit repr = representants[var];
-    if (!(repr == lit{})) {
-        return assgn.at(repr.get_var());
+    if (!(repr == lit{}) && repr.get_var() != var) {
+        return apply({var, false});
     }
     return assgn.at(var);
 }
@@ -159,5 +159,21 @@ int assignment::get_assgn_num() {
 }
 
 void assignment::set_representant(lit eq, lit repr) {
-    representants[eq.get_id()] = repr;
+    representants[eq.get_var()] = eq.is_neg() ? repr.neg_copy() : repr;
+}
+
+lit assignment::get_representant(lit eq) {
+    return has_representant(eq) ? (eq.is_neg() ? representants[eq.get_var()].neg_copy() : representants[eq.get_var()]) : eq;
+}
+
+int assignment::get_representant(int eq) {
+    return has_representant(eq) ? (int)representants[eq].get_var() : (int)eq;
+}
+
+bool assignment::has_representant(lit eq) {
+    return !(representants[eq.get_var()] == lit{});
+}
+
+bool assignment::has_representant(int eq) {
+    return !(representants[eq] == lit{});
 }

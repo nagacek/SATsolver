@@ -27,3 +27,15 @@ void logger::log_stdout(type type_num, const std::string &msg) {
 bool logger::cond_log(logger::type type_num) {
     return logger::LOG_LEVEL >= type_num;
 }
+
+std::string logger::vec_to_string(vector<lit> vec) {
+    std::string ret_val = "{";
+    std::string add;
+    for (lit l : vec) {
+        ret_val.append(l.to_string()).append(add).append(", ");
+    }
+    ret_val.pop_back();
+    ret_val.pop_back();
+    ret_val.append("}");
+    return ret_val;
+}

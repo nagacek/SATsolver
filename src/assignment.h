@@ -63,6 +63,14 @@ public:
     weak_ptr<clause> get_reason(lit lit);
 
     void set_representant(lit eq, lit repr);
+
+    bool has_representant(lit eq);
+
+    lit get_representant(lit eq);
+
+    bool has_representant(int eq);
+
+    int get_representant(int eq);
 };
 
 

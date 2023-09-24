@@ -24,10 +24,8 @@ weak_ptr<clause> occ_list::propagate(lit lit, assignment *assgn) {
             } else if (result == sat_bool::Undef) {
                 cnf_val->delete_clause(*it);
             }
-            it++;
-        } else {
-            it = temp_list.erase(it);
         }
+        it = temp_list.erase(it);
     }
     for (auto it = ntemp_list.begin(); it != ntemp_list.end(); ) {
         if (!(*it).expired()) {
@@ -39,10 +37,8 @@ weak_ptr<clause> occ_list::propagate(lit lit, assignment *assgn) {
             } else if (result == sat_bool::Undef) {
                 cnf_val->delete_clause(*it);
             }
-            it++;
-        } else {
-            it = temp_list.erase(it);
         }
+        it = ntemp_list.erase(it);
     }
     return {};
 }
@@ -68,9 +64,9 @@ void occ_list::propagate_pure_literal(assignment& assgn) {
                 it++;
             }
         }
-        if (pos_list.empty()) {
+        if (pos_list.empty() && assgn.apply(pos.neg_copy()) == sat_bool::Undef) {
             assgn.assign_and_enqueue(pos.neg_copy());
-        } else if (neg_list.empty()) {
+        } else if (neg_list.empty() && assgn.apply(pos) == sat_bool::Undef) {
             assgn.assign_and_enqueue(pos);
         }
     }
@@ -83,6 +79,7 @@ vector<weak_ptr<clause>> occ_list::poll_new_binary() {
 }
 
 sat_bool occ_list::substitute(lit eq, lit repr, assignment * assgn) {
+    logger::log(logger::DEBUG, "Substituting " + eq.to_string() + " with " + repr.to_string());
     auto eq_list = list[eq.get_id()];
     for (auto it = eq_list.begin(); it != eq_list.end(); ) {
         if (!(*it).expired()) {
@@ -123,7 +120,7 @@ sat_bool occ_list::substitute(lit eq, lit repr, assignment * assgn) {
             }
             shared_cl->init_occurrences(this);
         }
-        it = eq_list.erase(it);
+        it = neq_list.erase(it);
     }
     return sat_bool::Undef;
 }
