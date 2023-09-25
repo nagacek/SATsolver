@@ -28,6 +28,8 @@ public:
 
     weak_ptr<clause> add_learnt_clause(const std::vector<lit> & lits, priority * prio);
 
+    vector<weak_ptr<clause>> get_weak_copy();
+
     void set_clause_num(int num);
 
     int get_clause_num();
@@ -46,7 +48,13 @@ public:
 
     void init_watches(watch_list *twoatch);
 
+    void init_all_watches(watch_list * all_watches);
+
     void prune_clauses(priority *prio, watch_list *twoatch);
+
+    void delete_clause(weak_ptr<clause> to_delete);
+
+    void find_binary_clauses(vector<weak_ptr<clause>>& list);
 };
 
 

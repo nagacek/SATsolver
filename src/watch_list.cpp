@@ -16,17 +16,20 @@ void watch_list::undo(lit lit) {
 weak_ptr<clause> watch_list::propagate(lit lit, assignment *assgn) {
     logger::log(logger::DEBUG_VERBOSE, lit.to_string() + " is propagated");
 
-    vector<weak_ptr<clause>> temp_list = list[lit.get_id()]; //??
-    undo(lit);
-    for (int i = 0; i < temp_list.size(); i++) {
-        if (!temp_list[i].expired()) {
-            auto locked = temp_list[i].lock();
+    vector<weak_ptr<clause>> temp_list{};
+    //temp_list = std::move(list[lit.get_id()]); //??
+    //temp_list = list[lit.get_id()];
+    std::swap(list[lit.get_id()], temp_list);
+    //undo(lit);
+    for (auto it_o = temp_list.begin(); it_o != temp_list.end(); it_o++) {
+        if (!(*it_o).expired()) {
+            auto locked = (*it_o).lock();
             if (!locked->propagate(lit, this, assgn)) {
-                auto it = (list.begin() + lit.get_id());
-                for (int j = i + 1; j < temp_list.size(); j++) {
-                    it->insert(it->end(), temp_list[j]);
+                auto new_list = (list.begin() + lit.get_id());
+                for (auto next = it_o + 1; next != temp_list.end(); next++) {
+                    new_list->insert(new_list->end(), (*next));
                 }
-                return temp_list[i];
+                return *it_o;
             }
         }
     }
@@ -62,5 +65,12 @@ bool watch_list::nremove_clause(lit lit, weak_ptr<clause> cl) {
     } else {
         return false;
     }
+}
+
+void watch_list::notify(weak_ptr<clause> clause) {
+}
+
+void watch_list::log_prop() {
+    prop++;
 }
 

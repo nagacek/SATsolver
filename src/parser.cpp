@@ -27,7 +27,7 @@ namespace parser {
         std::string word;
         bool new_clause = false;
         vector<lit> clause_lits;
-        weak_ptr<clause> clause_ptr;
+        //weak_ptr<clause> clause_ptr;
         while (std::getline(stream, line)) {
             std::istringstream line_stream(line);
             while (next_word(line_stream, word)) {
@@ -109,7 +109,7 @@ namespace parser {
         std::string dimacs_sol = "p cnf " + std::to_string(assgn->get_var_num()) + " " + std::to_string(assgn->get_var_num());
 
         for (int i = 1; i <= assgn->get_var_num(); i++) {
-            dimacs_sol += "\n";
+            dimacs_sol += " 0 \n";
             sat_bool curr_assgn = assgn->get_assignment(i);
             if (curr_assgn == sat_bool::True) {
                 dimacs_sol += to_string(i);
@@ -120,6 +120,7 @@ namespace parser {
                 exit(-1);
             }
         }
+        dimacs_sol += " 0 \n";
 
         std::ofstream outfile;
         outfile.open(cnf_sol_file);

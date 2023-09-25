@@ -24,7 +24,12 @@ public:
         nid = id == 0 ? 0 : 2 * var - (is_negative ? 0 : 1);
 
     }
-
+    lit() {
+        var = 0;
+        is_negative = false;
+        id = 0;
+        nid = 0;
+    }
     explicit lit(int variable) {
         if (variable == 0) {
             throw invalid_arg_exception(std::string("lit variable cannot have index 0"));
@@ -34,13 +39,15 @@ public:
         id = 2 * var - (is_negative ? 1 : 0);
         nid = id == 0 ? 0 : 2 * var - (is_negative ? 0 : 1);
     }
-    unsigned get_id() { return id; }
     unsigned get_nid() { return nid; }
     unsigned get_var() { return var; }
     bool is_neg() { return is_negative; }
     lit copy() { return {var, is_negative}; }
     lit neg_copy() { return {var, !is_negative}; }
-    bool operator==(lit b){ return get_id() == b.get_id(); }
+    bool operator ==(lit b) const{ return get_id() == b.get_id(); }
+    bool operator <(lit b) const { return get_id() < b.get_id(); }
+
+    unsigned get_id() const { return id; }
 
     std::string to_string() {
         return std::string((is_neg() ? "¬" : "")).append("[").append(

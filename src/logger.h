@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <cstdio>
+#include <vector>
 #include "lit.h"
 
 namespace logger {
@@ -20,8 +21,8 @@ namespace logger {
         INFO,
         WARNING,
         ENHANCE,
-        DEBUG_CONFLICT,
         DEBUG,
+        DEBUG_CONFLICT,
         DEBUG_VERBOSE,
         DEBUG_VERY_VERBOSE
     };
@@ -34,8 +35,8 @@ namespace logger {
                     "INFO",
                     "WARNING",
                     "ENHANCE",
-                    "DEBUG_CONFLICT",
                     "DEBUG",
+                    "DEBUG_CONFLICT",
                     "DEBUG_VERBOSE",
                     "DEBUG_VERY_VERBOSE"
             };
@@ -50,6 +51,7 @@ namespace logger {
     void start_parsing();
 
 
+    string vec_to_string(std::vector<lit> vec);
 };
 
 

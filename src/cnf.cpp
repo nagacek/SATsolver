@@ -13,6 +13,15 @@ weak_ptr<clause> cnf::add_learnt_clause(const std::vector<lit> & lits, priority 
     return learnt_clauses.emplace_back(new clause(lits));
 }
 
+vector<weak_ptr<clause>> cnf::get_weak_copy() {
+    vector<weak_ptr<clause>> ret_val{};
+    ret_val.reserve(clauses.size());
+    for (auto &ptr : clauses) {
+        ret_val.push_back(ptr);
+    }
+    return ret_val;
+}
+
 void cnf::set_clause_num(int num) {
     if (num <= 0)
         throw invalid_arg_exception(std::string("negative number of clauses"));
@@ -50,13 +59,29 @@ int cnf::get_learnt_num() {
 }
 
 int cnf::get_clause_num() {
-    return clause_num;
+    return clauses.size();
 }
 
 void cnf::init_watches(watch_list *twoatch) {
     for (shared_ptr<clause> & cl : clauses) {
         cl->init_watch(twoatch);
     }
+}
+
+
+void cnf::init_all_watches(watch_list * all_watches) {
+    for (shared_ptr<clause> & cl : clauses) {
+        cl->init_occurrences(all_watches);
+    }
+}
+
+void cnf::delete_clause(weak_ptr<clause> to_delete) {
+    auto it = find(clauses.begin(), clauses.end(),  to_delete.lock());
+    if (it == clauses.end()) {
+        logger::log(logger::ERROR, "Clause to be deleted is not there");
+        exit(-1);
+    }
+    clauses.erase(it);
 }
 
 void cnf::prune_clauses(priority *prio, watch_list *twoatch) {
@@ -85,9 +110,19 @@ sat_bool cnf::init(assignment * assgn, double learnts) {
                 return sat_bool::False;
             }
             it = clauses.erase(it);
+            clause_num--;
             continue;
         }
         it++;
     }
     return sat_bool::Undef;
+}
+
+void cnf::find_binary_clauses(vector<weak_ptr<clause>>& list) {
+    for (auto it = clauses.begin(); it != clauses.end(); it++) {
+        shared_ptr<clause> curr = (*it);
+        if (curr->get_size() == 2) {
+            (&list)->push_back(curr);
+        }
+    }
 }

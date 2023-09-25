@@ -19,6 +19,7 @@
 class assignment {
 private:
     std::vector<sat_bool> assgn;
+    std::vector<lit> representants;
     std::vector<lit> chrono_assgn;
     std::vector<int> level_sep;
     std::vector<int> assgn_levels;
@@ -60,6 +61,16 @@ public:
     lit get_last_assign();
 
     weak_ptr<clause> get_reason(lit lit);
+
+    void set_representant(lit eq, lit repr);
+
+    bool has_representant(lit eq);
+
+    lit get_representant(lit eq);
+
+    bool has_representant(int eq);
+
+    int get_representant(int eq);
 };
 
 

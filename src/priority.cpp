@@ -26,7 +26,7 @@ lit priority::decide(assignment *assgn, cnf *cnf) {
         exit(-1);
     }
 
-    return {decided, occurrences[decided] < 0};
+    return {assgn->get_representant(decided), occurrences[decided] < 0};
 }
 
 void priority::enhance(int var) {
