@@ -8,6 +8,7 @@
 }*/
 
 bool clause::propagate(lit lit, watch_list *twoatch, assignment *assgn) {
+    twoatch->log_prop();
     logger::log(logger::DEBUG_VERBOSE, lit.to_string() + " -prop-> " + this->to_string(true));
 
     if (lits[watch1] == lit.neg_copy()) {
@@ -146,6 +147,7 @@ void clause::init_occurrences(watch_list * all_watches) {
 }
 
 sat_bool clause::simplify(lit lit, watch_list *twoatch, assignment *assgn) {
+    twoatch->log_prop();
     logger::log(logger::DEBUG_VERBOSE, lit.to_string() + " -simplify-> " + this->to_string(false));
     sat_bool result = assgn->apply(lit);
     if (result == sat_bool::True) {
@@ -220,8 +222,8 @@ lit clause::get_binary(bool first) {
     return first ? lits[0] : lits[1];
 }
 
-vector<lit> clause::get_lits() {
-    return lits;
+set<lit> clause::get_lits() {
+    return {lits.begin(), lits.end()};
 }
 
 

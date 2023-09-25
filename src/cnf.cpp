@@ -13,6 +13,15 @@ weak_ptr<clause> cnf::add_learnt_clause(const std::vector<lit> & lits, priority 
     return learnt_clauses.emplace_back(new clause(lits));
 }
 
+vector<weak_ptr<clause>> cnf::get_weak_copy() {
+    vector<weak_ptr<clause>> ret_val{};
+    ret_val.reserve(clauses.size());
+    for (auto &ptr : clauses) {
+        ret_val.push_back(ptr);
+    }
+    return ret_val;
+}
+
 void cnf::set_clause_num(int num) {
     if (num <= 0)
         throw invalid_arg_exception(std::string("negative number of clauses"));
@@ -50,7 +59,7 @@ int cnf::get_learnt_num() {
 }
 
 int cnf::get_clause_num() {
-    return clause_num;
+    return clauses.size();
 }
 
 void cnf::init_watches(watch_list *twoatch) {

@@ -21,7 +21,7 @@ weak_ptr<clause> watch_list::propagate(lit lit, assignment *assgn) {
     //temp_list = list[lit.get_id()];
     std::swap(list[lit.get_id()], temp_list);
     //undo(lit);
-    for (auto it_o = temp_list.begin(); it_o != temp_list.end(); ) {
+    for (auto it_o = temp_list.begin(); it_o != temp_list.end(); it_o++) {
         if (!(*it_o).expired()) {
             auto locked = (*it_o).lock();
             if (!locked->propagate(lit, this, assgn)) {
@@ -31,9 +31,6 @@ weak_ptr<clause> watch_list::propagate(lit lit, assignment *assgn) {
                 }
                 return *it_o;
             }
-            it_o++;
-        } else {
-            it_o = temp_list.erase(it_o);
         }
     }
     return {};
@@ -71,5 +68,9 @@ bool watch_list::nremove_clause(lit lit, weak_ptr<clause> cl) {
 }
 
 void watch_list::notify(weak_ptr<clause> clause) {
+}
+
+void watch_list::log_prop() {
+    prop++;
 }
 

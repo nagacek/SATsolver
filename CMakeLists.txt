@@ -13,5 +13,6 @@ add_executable(SATsolver src/parser.cpp src/parser.h src/main.cpp src/exceptions
         src/graph.cpp
         src/graph.h
         src/occ_list.cpp
-        src/occ_list.h)
+        src/occ_list.h
+)
 
