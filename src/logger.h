@@ -26,7 +26,7 @@ namespace logger {
         DEBUG_VERBOSE,
         DEBUG_VERY_VERBOSE
     };
-    const type LOG_LEVEL = type::ENHANCE;
+    const type LOG_LEVEL = type::FINISHED;
 
     const std::string message_types[] =
             {
