@@ -3,6 +3,7 @@
 //
 #include <memory>
 #include <vector>
+#include <set>
 #include "lit.h"
 
 #ifndef SATSOLVER_CLAUSE_H
@@ -55,7 +56,7 @@ public:
 
     lit get_binary(bool first);
 
-    vector<lit> get_lits();
+    set<lit> get_lits();
 };
 #include "assignment.h"
 #include "priority.h"

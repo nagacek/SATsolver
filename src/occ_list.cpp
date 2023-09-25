@@ -80,15 +80,17 @@ vector<weak_ptr<clause>> occ_list::poll_new_binary() {
 
 sat_bool occ_list::substitute(lit eq, lit repr, assignment * assgn) {
     logger::log(logger::DEBUG, "Substituting " + eq.to_string() + " with " + repr.to_string());
-    auto eq_list = list[eq.get_id()];
-    for (auto it = eq_list.begin(); it != eq_list.end(); ) {
-        if (!(*it).expired()) {
-            auto shared_cl = (*it).lock();
+    vector<weak_ptr<clause>> eq_list{};
+    std::swap(list[eq.get_id()], eq_list);
+    for (auto & it : eq_list) {
+        if (!it.expired()) {
+            auto shared_cl = it.lock();
             cnf_val->delete_clause(shared_cl);
             auto lits = shared_cl->get_lits();
+            vector<lit> lit_vec{lits.begin(), lits.end()};
             shared_cl.reset();
-            std::replace(lits.begin(), lits.end(), eq, repr);
-            auto new_cl = cnf_val->add_clause(lits);
+            std::replace(lit_vec.begin(), lit_vec.end(), eq, repr);
+            auto new_cl = cnf_val->add_clause(lit_vec);
             shared_cl = new_cl.lock();
             sat_bool result = shared_cl->init(assgn);
             if (result != sat_bool::Undef) {
@@ -99,17 +101,18 @@ sat_bool occ_list::substitute(lit eq, lit repr, assignment * assgn) {
             }
             shared_cl->init_occurrences(this);
         }
-        it = eq_list.erase(it);
     }
-    auto neq_list = list[eq.get_nid()];
-    for (auto it = neq_list.begin(); it != neq_list.end(); ) {
-        if (!(*it).expired()) {
-            auto shared_cl = (*it).lock();
+    vector<weak_ptr<clause>> neq_list{};
+    std::swap(list[eq.get_nid()], neq_list);
+    for (auto & it : neq_list) {
+        if (!it.expired()) {
+            auto shared_cl = it.lock();
             cnf_val->delete_clause(shared_cl);
             auto lits = shared_cl->get_lits();
+            vector<lit> lit_vec{lits.begin(), lits.end()};
             shared_cl.reset();
-            std::replace(lits.begin(), lits.end(), eq.neg_copy(), repr.neg_copy());
-            auto new_cl = cnf_val->add_clause(lits);
+            std::replace(lit_vec.begin(), lit_vec.end(), eq.neg_copy(), repr.neg_copy());
+            auto new_cl = cnf_val->add_clause(lit_vec);
             shared_cl = new_cl.lock();
             sat_bool result = shared_cl->init(assgn);
             if (result != sat_bool::Undef) {
@@ -120,7 +123,6 @@ sat_bool occ_list::substitute(lit eq, lit repr, assignment * assgn) {
             }
             shared_cl->init_occurrences(this);
         }
-        it = neq_list.erase(it);
     }
     return sat_bool::Undef;
 }

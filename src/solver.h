@@ -11,13 +11,25 @@
 #include "cnf.h"
 #include "watch_list.h"
 #include "priority.h"
+#include "graph.h"
+#include "occ_list.h"
 
+struct unhiding_t{
+    int stamp = 0;
+    map<lit, int> disc{};
+    map<lit, int> fin{};
+    map<lit, int> observed{};
+    map<lit, lit> parent{};
+    map<lit, lit> root{};
+    stack<lit> stack{};
+};
 class solver {
     cnf cnf_val;
     assignment assgn;
     watch_list twoatch;
     priority prio;
     sat_bool state;
+    occ_list occs;
 
     // statistics
     double prop_time = 0;
@@ -37,13 +49,13 @@ class solver {
 
 public:
 
-
     solver(double var_en, double var_dim, double cla_en, double cla_dim) {
         assgn = assignment();
         cnf_val = cnf();
         twoatch = watch_list();
         prio = priority(var_en, var_dim, cla_en, cla_dim);
         state = sat_bool::Undef;
+        occs = occ_list(&cnf_val);
     }
     assignment* get_assignment() {
         return &assgn;
@@ -76,6 +88,15 @@ private:
 
     void reset_times();
 
+    bool calc_stamp(lit l, unhiding_t &u, vector<vector<lit>>& sccs, graph& g);
+
+    void simplify(unhiding_t& u);
+
+    bool add_preprocessing_clause(const vector<lit>& lits);
+
+    bool hidden_tautology(set<lit> &lits, unhiding_t &u, vector<lit> &s_pos, vector<lit> &s_neg);
+
+    set<lit> hidden_literals(set<lit> lits, unhiding_t &u, vector<lit> &s_pos_rev, vector<lit> &s_neg);
 };
 
 

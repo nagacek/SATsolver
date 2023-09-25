@@ -17,18 +17,46 @@ void graph::add_clause(weak_ptr<clause> &cl) {
     add_edge(lit2.neg_copy(), lit1);
 }
 
+void graph::remove_clause(lit lit1, lit lit2) {
+    remove_edge(lit1.neg_copy(), lit2);
+    remove_edge(lit2.neg_copy(), lit1);
+}
+
+void graph::remove_edge(lit lit1, lit lit2) {
+    auto out1 = out_edges[lit1];
+    out1.erase(std::find(out1.begin(), out1.end(), lit2));
+    if (out1.empty()) {
+        if (in_edges[lit1].empty()) {
+            vertices.erase(lit1);
+        }
+    }
+    auto in2 = in_edges[lit2];
+    in2.erase(std::find(in2.begin(), in2.end(), lit1));
+    if (in2.empty()) {
+        if (out_edges[lit2].empty()) {
+            vertices.erase(lit2);
+        }
+    }
+}
+
 void graph::add_edge(lit lit1, lit lit2) {
     if (out_edges.find(lit1) == out_edges.end()) {
         out_edges.emplace(lit1, vector<lit>());
         vertices.insert(lit1);
     }
-    out_edges.find(lit1)->second.push_back(lit2);
+    auto it = std::find(out_edges[lit1].begin(), out_edges[lit1].end(),lit2);
+    if (it == out_edges[lit1].end()) {
+        out_edges[lit1].push_back(lit2);
+    }
 
     if (in_edges.find(lit2) == in_edges.end()) {
         in_edges.emplace(lit2, vector<lit>());
         vertices.insert(lit2);
     }
-    in_edges.find(lit2)->second.push_back(lit1);
+    it = std::find(in_edges[lit2].begin(), in_edges[lit2].end(),lit1);
+    if (it == in_edges[lit2].end()) {
+        in_edges[lit2].push_back(lit1);
+    }
 }
 
 vector<vector<lit>> graph::find_sccs() {
@@ -89,9 +117,14 @@ void graph::tarjan(lit l0) {
 set<lit> graph::find_roots() {
     set<lit> roots{};
     for (auto &it : vertices) {
-        if (in_edges.find(it) == in_edges.end()) {
+        if (in_edges.find(it) == in_edges.end() || in_edges.at(it).empty()) {
             roots.insert(it);
         }
     }
     return roots;
 }
+
+set<lit> graph::get_vertices() {
+    return vertices;
+}
+

@@ -10,9 +10,10 @@
 
 class occ_list : public watch_list {
 private:
-    cnf * cnf_val;
+    cnf * cnf_val{};
     vector<weak_ptr<clause>> binary;
 public:
+    occ_list() = default;
     explicit occ_list(cnf * cnf) {
         cnf_val = cnf;
     }

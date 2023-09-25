@@ -18,8 +18,10 @@ class watch_list {
 protected:
     vector<vector<weak_ptr<clause>>> list;
 public:
+    unsigned prop;
     watch_list() {
         list = vector<vector<weak_ptr<clause>>>();
+        prop = 0;
     }
 
     void undo(lit lit);
@@ -37,6 +39,8 @@ public:
     void init(unsigned int size);
 
     virtual void notify(weak_ptr<clause> clause);
+
+    void log_prop();
 };
 
 

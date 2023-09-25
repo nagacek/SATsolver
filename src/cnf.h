@@ -28,6 +28,8 @@ public:
 
     weak_ptr<clause> add_learnt_clause(const std::vector<lit> & lits, priority * prio);
 
+    vector<weak_ptr<clause>> get_weak_copy();
+
     void set_clause_num(int num);
 
     int get_clause_num();
