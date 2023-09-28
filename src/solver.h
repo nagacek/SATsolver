@@ -21,7 +21,7 @@ struct unhiding_t{
     map<lit, int> observed{};
     map<lit, lit> parent{};
     map<lit, lit> root{};
-    stack<lit> stack{};
+    stack<lit> s{};
 };
 class solver {
     cnf cnf_val;

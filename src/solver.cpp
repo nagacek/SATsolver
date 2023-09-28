@@ -319,7 +319,7 @@ bool solver::calc_stamp(lit l, unhiding_t &u, vector<vector<lit>>& sccs, graph& 
     u.disc[l] = u.stamp;
     u.observed[l] = u.stamp;
     bool flag = true;
-    u.stack.push(l);
+    u.s.push(l);
 
     vector<lit> lits{g.out_edges[l]};
     for (auto lit2 : lits) {
@@ -356,11 +356,11 @@ bool solver::calc_stamp(lit l, unhiding_t &u, vector<vector<lit>>& sccs, graph& 
         vector<lit> scc{};
         lit lit2;
         do {
-            lit2 = u.stack.top();
+            lit2 = u.s.top();
             u.disc[lit2] = u.disc[l];
             u.fin[lit2] = u.stamp;
             scc.push_back(lit2);
-            u.stack.pop();
+            u.s.pop();
         } while (!(lit2 == l));
         if (scc.size() > 1) {
             sccs.push_back(scc);

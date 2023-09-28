@@ -20,7 +20,7 @@ private:
     map<lit, int> ids;
     map<lit, int> lows;
     vector<bool> on_stack;
-    stack<lit> stack;
+    stack<lit> s;
     set<lit> unvisited;
     vector<vector<lit>> result;
 

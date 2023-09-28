@@ -76,7 +76,7 @@ void graph::reset_tarjan() {
     lows = {};
     on_stack.resize(vertices.size());
     std::fill(on_stack.begin(), on_stack.end(), false);
-    stack = {};
+    s = {};
     maxdf = 0;
     result = {};
 }
@@ -86,7 +86,7 @@ void graph::tarjan(lit l0) {
     lows.emplace(l0, maxdf);
     maxdf++;
 
-    stack.push(l0);
+    s.push(l0);
     on_stack[ids[l0]] = true;
     unvisited.erase(l0);
 
@@ -103,8 +103,8 @@ void graph::tarjan(lit l0) {
         vector<lit> scc = {};
         lit pop{0, false};
         do {
-            pop = stack.top();
-            stack.pop();
+            pop = s.top();
+            s.pop();
             on_stack[ids[pop]] = false;
             scc.push_back(pop);
         } while (!(pop == l0));
